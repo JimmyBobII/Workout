@@ -37,8 +37,14 @@
   #timer{display:none;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;padding:30px 20px;text-align:center;}
   #phase{font-size:0.7rem;letter-spacing:3px;text-transform:uppercase;color:var(--muted);margin-bottom:12px;}
   #bigTime{font-family:'Bebas Neue',sans-serif;font-size:22vw;line-height:1;color:var(--accent);transition:color 0.3s;}
-  #progLabel{font-size:0.85rem;color:var(--muted);margin-top:16px;letter-spacing:1px;}
-  .bar-wrap{width:100%;max-width:340px;background:var(--surface2);border-radius:99px;height:6px;margin-top:20px;overflow:hidden;}
+
+  /* Progress label now shows set/exercise info */
+  #progLabel{font-size:1rem;font-weight:500;color:var(--text);margin-top:18px;letter-spacing:0.5px;min-height:1.4em;}
+
+  /* Elapsed time shown small below */
+  #elapsedLabel{font-size:0.75rem;color:var(--muted);margin-top:6px;letter-spacing:1px;}
+
+  .bar-wrap{width:100%;max-width:340px;background:var(--surface2);border-radius:99px;height:6px;margin-top:16px;overflow:hidden;}
   .bar-fill{height:100%;background:var(--accent);border-radius:99px;transition:width 1s linear;}
   .controls{display:flex;gap:14px;margin-top:36px;}
   .ctrl-btn{
@@ -51,6 +57,8 @@
   #doneScreen{display:none;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;text-align:center;padding:30px;}
   #doneScreen h2{font-family:'Bebas Neue',sans-serif;font-size:4rem;color:var(--accent);letter-spacing:4px;}
   #doneScreen p{color:var(--muted);margin-top:10px;}
+  #totalTime{font-family:'Bebas Neue',sans-serif;font-size:2.2rem;color:var(--text);margin-top:20px;letter-spacing:2px;}
+  #totalTimeLabel{font-size:0.65rem;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-top:4px;}
   #againBtn{margin-top:32px;padding:16px 40px;background:var(--accent);color:#0e0e0e;font-family:'Bebas Neue',sans-serif;font-size:1.5rem;letter-spacing:2px;border:none;border-radius:14px;cursor:pointer;}
 </style>
 </head>
@@ -84,6 +92,7 @@
   <div id="phase">WARMUP</div>
   <div id="bigTime">0</div>
   <div id="progLabel"></div>
+  <div id="elapsedLabel"></div>
   <div class="bar-wrap"><div class="bar-fill" id="bar" style="width:100%"></div></div>
   <div class="controls">
     <button class="ctrl-btn" onclick="togglePause()" id="pauseBtn">PAUSE</button>
@@ -95,11 +104,14 @@
 <div id="doneScreen">
   <h2>DONE!</h2>
   <p>Great work 💪</p>
+  <div id="totalTime"></div>
+  <div id="totalTimeLabel">Total time</div>
   <button id="againBtn" onclick="location.reload()">AGAIN</button>
 </div>
 
 <script>
 let phases=[],idx=0,remaining=0,total=0,iv=null,paused=false;
+let elapsedSecs=0,elapsedIv=null;
 
 const AC=window.AudioContext||window.webkitAudioContext;
 function beep(f,d,v=0.3){
@@ -113,6 +125,16 @@ function bStart(){beep(880,.15);setTimeout(()=>beep(880,.15),180);setTimeout(()=
 function bEnd(){beep(440,.2);setTimeout(()=>beep(330,.4),220);}
 function bTick(){beep(660,.08,.15);}
 
+function fmtTime(s){
+  const m=Math.floor(s/60),sec=s%60;
+  return m>0?`${m}:${String(sec).padStart(2,'0')}`:String(sec);
+}
+function fmtElapsed(s){
+  const h=Math.floor(s/3600),m=Math.floor((s%3600)/60),sec=s%60;
+  if(h>0)return`${h}:${String(m).padStart(2,'0')}:${String(sec).padStart(2,'0')}`;
+  return`${String(m).padStart(2,'0')}:${String(sec).padStart(2,'0')}`;
+}
+
 function buildPhases(){
   const w=+document.getElementById('warmup').value;
   const ec=+document.getElementById('exCount').value;
@@ -122,15 +144,15 @@ function buildPhases(){
   const sc=+document.getElementById('setCooldown').value;
   const fc=+document.getElementById('finalCooldown').value;
   const list=[];
-  if(w>0)list.push({label:'WARMUP',dur:w,col:'var(--blue)'});
+  if(w>0)list.push({label:'WARMUP',dur:w,col:'var(--blue)',prog:''});
   for(let set=1;set<=s;set++){
     for(let ex=1;ex<=ec;ex++){
-      list.push({label:`SET ${set} · EX ${ex} / ${ec}`,dur:et,col:'var(--accent)'});
-      if(ex<ec&&er>0)list.push({label:'REST',dur:er,col:'var(--blue)'});
+      list.push({label:'WORK',dur:et,col:'var(--accent)',prog:`Set ${set} of ${s}  ·  Exercise ${ex} of ${ec}`});
+      if(ex<ec&&er>0)list.push({label:'REST',dur:er,col:'var(--blue)',prog:`Set ${set} of ${s}  ·  After exercise ${ex}`});
     }
-    if(set<s&&sc>0)list.push({label:`SET ${set} COOLDOWN`,dur:sc,col:'var(--blue)'});
+    if(set<s&&sc>0)list.push({label:`SET ${set} COOLDOWN`,dur:sc,col:'var(--blue)',prog:`Set ${set} of ${s} complete`});
   }
-  if(fc>0)list.push({label:'FINAL COOLDOWN',dur:fc,col:'var(--blue)'});
+  if(fc>0)list.push({label:'FINAL COOLDOWN',dur:fc,col:'var(--blue)',prog:'All sets complete'});
   return list;
 }
 
@@ -139,7 +161,9 @@ function startWorkout(){
   if(!phases.length)return;
   document.getElementById('setup').style.display='none';
   document.getElementById('timer').style.display='flex';
-  idx=0;paused=false;
+  idx=0;paused=false;elapsedSecs=0;
+  clearInterval(elapsedIv);
+  elapsedIv=setInterval(()=>{if(!paused){elapsedSecs++;updateElapsed();}},1000);
   loadPhase();
 }
 
@@ -150,6 +174,7 @@ function loadPhase(){
   document.getElementById('phase').textContent=p.label;
   document.getElementById('bigTime').style.color=p.col;
   document.getElementById('bar').style.background=p.col;
+  document.getElementById('progLabel').textContent=p.prog||'';
   bStart();
   updateDisplay();
   clearInterval(iv);
@@ -165,10 +190,12 @@ function tick(){
 
 function updateDisplay(){
   const r=Math.max(0,remaining);
-  const m=Math.floor(r/60),s=r%60;
-  document.getElementById('bigTime').textContent=r>=60?`${m}:${String(s).padStart(2,'0')}`:String(r);
-  document.getElementById('progLabel').textContent=`Phase ${idx+1} of ${phases.length}`;
+  document.getElementById('bigTime').textContent=fmtTime(r);
   document.getElementById('bar').style.width=(total>0?(r/total)*100:0)+'%';
+}
+
+function updateElapsed(){
+  document.getElementById('elapsedLabel').textContent='Elapsed: '+fmtElapsed(elapsedSecs);
 }
 
 function togglePause(){
@@ -176,8 +203,18 @@ function togglePause(){
   document.getElementById('pauseBtn').textContent=paused?'RESUME':'PAUSE';
 }
 function skipPhase(){clearInterval(iv);bEnd();idx++;setTimeout(loadPhase,300);}
-function stopWorkout(){clearInterval(iv);document.getElementById('timer').style.display='none';document.getElementById('setup').style.display='block';}
-function finish(){clearInterval(iv);document.getElementById('timer').style.display='none';document.getElementById('doneScreen').style.display='flex';bStart();}
+function stopWorkout(){
+  clearInterval(iv);clearInterval(elapsedIv);
+  document.getElementById('timer').style.display='none';
+  document.getElementById('setup').style.display='block';
+}
+function finish(){
+  clearInterval(iv);clearInterval(elapsedIv);
+  document.getElementById('timer').style.display='none';
+  document.getElementById('doneScreen').style.display='flex';
+  document.getElementById('totalTime').textContent=fmtElapsed(elapsedSecs);
+  bStart();
+}
 </script>
 </body>
-  </html>
+</html>
