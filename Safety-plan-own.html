@@ -3,131 +3,424 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>My Plan</title>
+<title>My Calm and Safety Plan</title>
 <style>
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body {
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-    background: #0f0f0f;
-    color: #f0ede8;
-    padding: 2rem 1rem;
-    line-height: 1.6;
+  * {
+    box-sizing: border-box;
   }
-  .card {
-    max-width: 560px;
+
+  :root {
+    --page: #f5f8f6;
+    --card: #ffffff;
+    --card-soft: #eef6f2;
+    --card-warm: #fff8ed;
+    --text: #26352f;
+    --muted: #66766f;
+    --line: #dce7e1;
+    --green: #4d806c;
+    --green-dark: #315f4e;
+    --gold: #a87837;
+    --blue: #557da1;
+    --urgent: #a64d4d;
+    --urgent-soft: #fff1f1;
+    --shadow: 0 12px 36px rgba(53, 79, 68, 0.08);
+    --radius: 20px;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    margin: 0;
+    min-height: 100vh;
+    padding: 22px 14px 52px;
+    background:
+      radial-gradient(circle at top, #ffffff 0, var(--page) 48%, #edf3ef 100%);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+    line-height: 1.55;
+  }
+
+  .page {
+    width: 100%;
+    max-width: 620px;
     margin: 0 auto;
   }
-  h1 {
-    font-size: 13px;
-    font-weight: 600;
+
+  header {
+    margin-bottom: 18px;
+  }
+
+  .eyebrow {
+    margin: 0 0 7px;
+    color: var(--green);
+    font-size: 0.76rem;
+    font-weight: 750;
     letter-spacing: 0.12em;
     text-transform: uppercase;
-    color: #888;
-    margin-bottom: 2.5rem;
   }
+
+  h1 {
+    margin: 0 0 8px;
+    font-size: clamp(1.75rem, 7vw, 2.25rem);
+    line-height: 1.15;
+    letter-spacing: -0.035em;
+  }
+
+  .intro {
+    margin: 0;
+    color: var(--muted);
+    font-size: 0.96rem;
+  }
+
   .anchor {
-    font-size: 22px;
-    font-weight: 500;
-    color: #f0ede8;
-    line-height: 1.4;
-    margin-bottom: 2.5rem;
-    padding-bottom: 2rem;
-    border-bottom: 1px solid #2a2a2a;
+    margin: 20px 0;
+    padding: 20px;
+    border: 1px solid #d9e9e1;
+    border-radius: var(--radius);
+    background: var(--card-soft);
+    box-shadow: var(--shadow);
+    font-size: 1.2rem;
+    font-weight: 650;
+    line-height: 1.5;
   }
-  .section { margin-bottom: 2.5rem; }
-  .section-title {
-    font-size: 11px;
-    font-weight: 600;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    color: #c8a96e;
-    margin-bottom: 1rem;
+
+  .anchor span {
+    display: block;
   }
-  ul { list-style: none; padding: 0; }
-  li {
-    font-size: 16px;
-    color: #d8d4ce;
-    padding: 0.65rem 0;
-    border-bottom: 1px solid #1e1e1e;
-    line-height: 1.6;
+
+  .section {
+    margin-top: 18px;
+    padding: 20px;
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    background: rgba(255, 255, 255, 0.95);
+    box-shadow: var(--shadow);
   }
-  li:last-child { border-bottom: none; }
-  .step {
-    display: flex;
-    gap: 1rem;
-    align-items: baseline;
-    padding: 0.65rem 0;
-    border-bottom: 1px solid #1e1e1e;
+
+  .section h2 {
+    margin: 0 0 6px;
+    font-size: 1.08rem;
+    line-height: 1.3;
   }
-  .step:last-child { border-bottom: none; }
-  .step-num {
-    font-size: 11px;
-    font-weight: 600;
-    color: #c8a96e;
-    min-width: 20px;
-    padding-top: 2px;
+
+  .section-note {
+    margin: 0 0 16px;
+    color: var(--muted);
+    font-size: 0.9rem;
   }
-  .step-text { font-size: 16px; color: #d8d4ce; line-height: 1.6; }
+
+  .first-steps {
+    display: grid;
+    gap: 10px;
+  }
+
+  .check-row {
+    display: grid;
+    grid-template-columns: 30px 1fr;
+    gap: 11px;
+    align-items: start;
+    padding: 13px;
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    background: #fbfdfc;
+  }
+
+  .check-row input {
+    width: 21px;
+    height: 21px;
+    margin: 2px 0 0;
+    accent-color: var(--green);
+  }
+
+  .check-row label {
+    cursor: pointer;
+    font-size: 1rem;
+  }
+
+  .check-row strong {
+    display: block;
+    margin-bottom: 2px;
+    color: var(--green-dark);
+  }
+
+  details {
+    margin-top: 18px;
+    overflow: hidden;
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    background: rgba(255, 255, 255, 0.95);
+    box-shadow: var(--shadow);
+  }
+
+  summary {
+    padding: 18px 20px;
+    cursor: pointer;
+    color: var(--text);
+    font-size: 1.03rem;
+    font-weight: 700;
+    list-style: none;
+  }
+
+  summary::-webkit-details-marker {
+    display: none;
+  }
+
+  summary::after {
+    content: "＋";
+    float: right;
+    color: var(--green);
+    font-size: 1.25rem;
+    line-height: 1;
+  }
+
+  details[open] summary::after {
+    content: "–";
+  }
+
+  .details-body {
+    padding: 0 20px 20px;
+  }
+
+  .choice-list {
+    display: grid;
+    gap: 9px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .choice-list li {
+    padding: 12px 13px;
+    border: 1px solid var(--line);
+    border-radius: 13px;
+    background: #fbfdfc;
+  }
+
+  .choice-list li::before {
+    content: "•";
+    margin-right: 9px;
+    color: var(--green);
+    font-weight: 800;
+  }
+
+  .reality-card {
+    margin-top: 10px;
+    padding: 15px;
+    border-left: 4px solid var(--blue);
+    border-radius: 0 14px 14px 0;
+    background: #f1f6fa;
+  }
+
+  .reality-card p {
+    margin: 0 0 10px;
+  }
+
+  .reality-card p:last-child {
+    margin-bottom: 0;
+  }
+
+  .reminders {
+    display: grid;
+    gap: 10px;
+  }
+
   .reminder {
-    background: #1a1a1a;
-    border-left: 3px solid #c8a96e;
-    border-radius: 0 8px 8px 0;
-    padding: 1rem 1.25rem;
-    margin-bottom: 1rem;
-    font-size: 16px;
-    color: #f0ede8;
-    line-height: 1.6;
+    padding: 14px;
+    border: 1px solid #eadfcf;
+    border-radius: 14px;
+    background: var(--card-warm);
   }
-  .crisis-line {
-    font-size: 16px;
-    color: #d8d4ce;
-    padding: 0.65rem 0;
-    border-bottom: 1px solid #1e1e1e;
+
+  .people {
+    display: grid;
+    gap: 10px;
   }
-  .crisis-line:last-child { border-bottom: none; }
-  strong { color: #f0ede8; font-weight: 600; }
+
+  .person {
+    padding: 14px;
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    background: #fbfdfc;
+  }
+
+  .person strong {
+    display: block;
+    margin-bottom: 3px;
+    color: var(--green-dark);
+  }
+
+  .crisis {
+    margin-top: 18px;
+    padding: 20px;
+    border: 1px solid #eccfcf;
+    border-radius: var(--radius);
+    background: var(--urgent-soft);
+    box-shadow: var(--shadow);
+  }
+
+  .crisis h2 {
+    margin: 0 0 7px;
+    font-size: 1.08rem;
+    color: #7e3838;
+  }
+
+  .crisis p {
+    margin: 0 0 14px;
+    color: #6f4a4a;
+  }
+
+  .crisis-actions {
+    display: grid;
+    gap: 10px;
+  }
+
+  .action-link {
+    display: block;
+    padding: 14px 16px;
+    border-radius: 14px;
+    text-align: center;
+    text-decoration: none;
+    font-weight: 750;
+  }
+
+  .action-link.support {
+    border: 1px solid #bdcfd7;
+    background: #ffffff;
+    color: #365f72;
+  }
+
+  .action-link.emergency {
+    background: var(--urgent);
+    color: #ffffff;
+  }
+
+  footer {
+    margin-top: 22px;
+    color: var(--muted);
+    text-align: center;
+    font-size: 0.8rem;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+  }
 </style>
 </head>
 <body>
-<div class="card">
-  <h1>My plan</h1>
+<main class="page">
+  <header>
+    <p class="eyebrow">My calm and safety plan</p>
+    <h1>Start with one small thing.</h1>
+    <p class="intro">I do not need to solve everything. I only need to follow the next step.</p>
+  </header>
 
-  <p class="anchor">You have been here before.<br>You got through it.<br>You will get through this.</p>
-
-  <div class="section">
-    <p class="section-title">First — ground yourself</p>
-    <ul>
-      <li>Get Piff. Hold him or put him next to you. You don't have to do anything else yet.</li>
-      <li>Change the light. Put on the amber orb. Let the room feel softer.</li>
-      <li>Put music on — something familiar. Let it fill the space.</li>
-    </ul>
+  <div class="anchor" aria-label="Main reminder">
+    <span>You have been here before.</span>
+    <span>You got through it.</span>
+    <span>You can get through this moment.</span>
   </div>
 
-  <div class="section">
-    <p class="section-title">Then — do one of these</p>
-    <div class="step"><span class="step-num">1</span><span class="step-text">Open your Self Soothe Box. Go through everything in it slowly.</span></div>
-    <div class="step"><span class="step-num">2</span><span class="step-text">Lift weights for an hour. Let your body do something strong.</span></div>
-    <div class="step"><span class="step-num">3</span><span class="step-text">Work on your game, Piececool kit, or sticker books. Hands busy, mind focused.</span></div>
-    <div class="step"><span class="step-num">4</span><span class="step-text">Put on a game. Something you know well.</span></div>
-    <div class="step"><span class="step-num">5</span><span class="step-text">Read something familiar.</span></div>
-    <div class="step"><span class="step-num">6</span><span class="step-text">Message Hellena.</span></div>
-    <div class="step"><span class="step-num">7</span><span class="step-text">Tell Vanda. Show her your plan.</span></div>
-  </div>
+  <section class="section" aria-labelledby="start-heading">
+    <h2 id="start-heading">Do these first</h2>
+    <p class="section-note">Only focus on these three steps. Tick each one when it is done.</p>
 
-  <div class="section">
-    <p class="section-title">Remember</p>
-    <div class="reminder">What you're experiencing is the condition. It is not the truth. It will pass.</div>
-    <div class="reminder">You are not difficult. You are not broken. You are dealing with something hard.</div>
-    <div class="reminder">You don't have to fix it right now. You just have to get through this moment.</div>
-  </div>
+    <div class="first-steps">
+      <div class="check-row">
+        <input id="step-piff" type="checkbox">
+        <label for="step-piff">
+          <strong>Get Piff.</strong>
+          Hold him or put him next to you. Nothing else is required yet.
+        </label>
+      </div>
 
-  <div class="section">
-    <p class="section-title">If it becomes a crisis</p>
-    <div class="crisis-line"><strong>Samaritans:</strong> 116 123 — free, 24/7</div>
-    <div class="crisis-line"><strong>Crisis text:</strong> text SHOUT to 85258</div>
-    <div class="crisis-line"><strong>999</strong> if you are in immediate danger</div>
-  </div>
+      <div class="check-row">
+        <input id="step-light" type="checkbox">
+        <label for="step-light">
+          <strong>Soften the light.</strong>
+          Put on the amber orb and let the room feel calmer.
+        </label>
+      </div>
 
-</div>
+      <div class="check-row">
+        <input id="step-music" type="checkbox">
+        <label for="step-music">
+          <strong>Put on familiar music.</strong>
+          Let something known and steady fill the space.
+        </label>
+      </div>
+    </div>
+  </section>
+
+  <details>
+    <summary>Choose one gentle activity</summary>
+    <div class="details-body">
+      <p class="section-note">One option is enough. A shorter version still counts.</p>
+      <ul class="choice-list">
+        <li>Open your Self Soothe Box and go through it slowly.</li>
+        <li>Lift weights if it feels safe. A short session is enough if an hour feels too much.</li>
+        <li>Work on your game, Piececool kit, or sticker books.</li>
+        <li>Put on a familiar game.</li>
+        <li>Read something familiar.</li>
+      </ul>
+    </div>
+  </details>
+
+  <details>
+    <summary>When thoughts feel frightening or completely certain</summary>
+    <div class="details-body">
+      <div class="reality-card">
+        <p><strong>The feeling is real, but I do not have to act on it.</strong></p>
+        <p>My mind may not be giving me reliable conclusions while I am unwell or overwhelmed.</p>
+        <p>I can pause important decisions and check what is happening with someone I trust.</p>
+      </div>
+    </div>
+  </details>
+
+  <details>
+    <summary>Contact someone I trust</summary>
+    <div class="details-body">
+      <div class="people">
+        <div class="person">
+          <strong>Hellena</strong>
+          Send a simple message: “Things are not good and I need some company or reassurance.”
+        </div>
+        <div class="person">
+          <strong>Vanda</strong>
+          Tell her what is happening and show her this plan.
+        </div>
+      </div>
+    </div>
+  </details>
+
+  <section class="section" aria-labelledby="remember-heading">
+    <h2 id="remember-heading">Remember</h2>
+    <p class="section-note">Read these slowly. I do not need to argue with my thoughts.</p>
+
+    <div class="reminders">
+      <div class="reminder">What I am experiencing can be part of my condition. It can pass.</div>
+      <div class="reminder">I am not difficult or broken. I am dealing with something hard.</div>
+      <div class="reminder">I do not need to fix everything now. I only need to get through this moment safely.</div>
+      <div class="reminder">I can delay decisions, rest, and let another person help me check what is happening.</div>
+    </div>
+  </section>
+
+  <section class="crisis" aria-labelledby="crisis-heading">
+    <h2 id="crisis-heading">If I cannot keep myself safe</h2>
+    <p>Use one of these now. I do not need to handle an emergency alone.</p>
+
+    <div class="crisis-actions">
+      <a class="action-link support" href="tel:116123">Call Samaritans — 116 123</a>
+      <a class="action-link emergency" href="tel:999">Call 999 for immediate danger</a>
+    </div>
+  </section>
+
+  <footer>
+    This page works without saving anything. The tick boxes reset when the page is reopened.
+  </footer>
+</main>
 </body>
-      </html>
+ </html>
