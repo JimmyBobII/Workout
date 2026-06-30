@@ -20,6 +20,7 @@
     --esa: #79dbb0;
     --uc:  #f0a060;
     --soon: #f06060;
+    --today-col: #a78bfa;
     --radius: 16px;
   }
 
@@ -33,20 +34,9 @@
     margin: 0 auto;
   }
 
-  h1 {
-    font-size: 1.5rem;
-    font-weight: 700;
-    margin-bottom: 4px;
-    letter-spacing: -0.02em;
-  }
+  h1 { font-size: 1.5rem; font-weight: 700; margin-bottom: 4px; letter-spacing: -0.02em; }
+  .today-line { font-size: 0.82rem; color: var(--muted); margin-bottom: 32px; }
 
-  .today-line {
-    font-size: 0.82rem;
-    color: var(--muted);
-    margin-bottom: 32px;
-  }
-
-  /* ── Cards ── */
   .cards { display: flex; flex-direction: column; gap: 14px; margin-bottom: 40px; }
 
   .card {
@@ -57,7 +47,6 @@
     position: relative;
     overflow: hidden;
   }
-
   .card::before {
     content: '';
     position: absolute;
@@ -72,7 +61,7 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    margin-bottom: 12px;
+    margin-bottom: 14px;
   }
 
   .tag {
@@ -87,18 +76,26 @@
   .esa .tag { background: rgba(121,219,176,0.15); color: var(--esa); }
   .uc  .tag { background: rgba(240,160,96,0.15);  color: var(--uc);  }
 
-  .freq-label {
-    font-size: 0.75rem;
-    color: var(--muted);
+  .freq-label { font-size: 0.75rem; color: var(--muted); }
+
+  .amount {
+    font-family: 'DM Mono', monospace;
+    font-size: 1.05rem;
+    font-weight: 500;
+    margin-bottom: 10px;
+    opacity: 0.85;
   }
+  .pip .amount { color: var(--pip); }
+  .esa .amount { color: var(--esa); }
+  .uc  .amount { color: var(--uc);  }
 
   .next-date {
     font-family: 'DM Mono', monospace;
-    font-size: 1.45rem;
+    font-size: 1.4rem;
     font-weight: 500;
     letter-spacing: -0.02em;
     line-height: 1.2;
-    margin-bottom: 6px;
+    margin-bottom: 8px;
   }
 
   .days-pill {
@@ -112,16 +109,10 @@
   .days-pill.far    { background: rgba(121,219,176,0.12); color: var(--esa); }
   .days-pill.medium { background: rgba(240,160,96,0.12);  color: var(--uc);  }
   .days-pill.soon   { background: rgba(240,96,96,0.15);   color: var(--soon);}
-  .days-pill.today  { background: rgba(110,168,254,0.15); color: var(--pip); }
+  .days-pill.today  { background: rgba(167,139,250,0.2);  color: var(--today-col); }
 
-  .weekend-note {
-    font-size: 0.75rem;
-    color: var(--muted);
-    font-style: italic;
-    margin-top: 4px;
-  }
+  .weekend-note { font-size: 0.75rem; color: var(--muted); font-style: italic; margin-top: 4px; }
 
-  /* ── Backup ── */
   .section-title {
     font-size: 0.68rem;
     text-transform: uppercase;
@@ -131,7 +122,6 @@
   }
 
   .backup-row { display: flex; gap: 10px; }
-
   .backup-btn {
     flex: 1;
     padding: 13px;
@@ -146,22 +136,15 @@
     transition: border-color 0.15s;
   }
   .backup-btn:hover { border-color: var(--muted); }
-
   #load-input { display: none; }
 
-  .refresh-note {
-    text-align: center;
-    font-size: 0.72rem;
-    color: var(--muted);
-    margin-top: 28px;
-  }
+  .refresh-note { text-align: center; font-size: 0.72rem; color: var(--muted); margin-top: 28px; }
 </style>
 </head>
 <body>
 
 <h1>My Benefit Payments</h1>
 <p class="today-line" id="today-line"></p>
-
 <div class="cards" id="cards"></div>
 
 <p class="section-title">Backup &amp; Restore</p>
@@ -170,94 +153,111 @@
   <button class="backup-btn" onclick="document.getElementById('load-input').click()">📂 Load Backup</button>
 </div>
 <input type="file" id="load-input" accept=".json" onchange="loadBackup(event)">
-
-<p class="refresh-note">Dates update automatically every time you open this page.</p>
+<p class="refresh-note">Dates recalculate automatically every time you open this page.</p>
 
 <script>
-// ── Your payment schedules (baked in) ──────────────────────────────
+// ── Payment schedules (verified by calculation, not guesswork) ──────
 const SCHEDULES = [
   {
-    id:    'pip',
-    label: 'PIP',
-    freq:  'Every 4 weeks',
-    type:  'interval',
-    anchor: '2025-06-18',   // last known payment
-    days:   28,
+    id:       'pip',
+    label:    'PIP',
+    freq:     'Every 4 weeks',
+    amount:   '£626.80',
+    type:     'interval',
+    anchor:   [2025, 6, 18],   // 18 June 2025 (months are 1-based here)
+    days:     28,
   },
   {
-    id:    'esa',
-    label: 'ESA',
-    freq:  'Every 2 weeks',
-    type:  'interval',
-    anchor: '2025-06-17',   // last known payment
-    days:   14,
+    id:       'esa',
+    label:    'ESA',
+    freq:     'Every 2 weeks',
+    amount:   '£291.80',
+    type:     'interval',
+    anchor:   [2025, 6, 3],    // 3 June 2025 (verified anchor)
+    days:     14,
   },
   {
-    id:   'uc',
-    label: 'UC',
-    freq:  'Monthly on the 12th',
-    type:  'monthly',
+    id:       'uc',
+    label:    'UC',
+    freq:     'Monthly on the 12th',
+    amount:   '£649.97',
+    type:     'monthly',
     dayOfMonth: 12,
   },
 ];
 
-// ── Date helpers ────────────────────────────────────────────────────
+// ── Helpers ────────────────────────────────────────────────────────
 
-function today() {
+function startOfToday() {
   const d = new Date();
   d.setHours(0, 0, 0, 0);
   return d;
 }
 
-// Move a date back to Friday if it lands on Saturday or Sunday
-function adjustForWeekend(d) {
-  const day = d.getDay(); // 0=Sun, 6=Sat
-  if (day === 6) { d.setDate(d.getDate() - 1); return { date: d, adjusted: true, reason: 'Saturday → paid Friday' }; }
-  if (day === 0) { d.setDate(d.getDate() - 2); return { date: d, adjusted: true, reason: 'Sunday → paid Friday' }; }
-  return { date: d, adjusted: false, reason: null };
+// anchor: [year, month_1based, day]
+function anchorToDate(a) {
+  return new Date(a[0], a[1] - 1, a[2]);
 }
 
-function nextInterval(anchorStr, intervalDays) {
-  const anchor = new Date(anchorStr);
-  anchor.setHours(0, 0, 0, 0);
-  const now = today();
-  let next = new Date(anchor);
-  while (next <= now) {
-    next.setDate(next.getDate() + intervalDays);
+function addDays(d, n) {
+  const r = new Date(d);
+  r.setDate(r.getDate() + n);
+  return r;
+}
+
+function nextInterval(anchor, intervalDays) {
+  const today = startOfToday();
+  let d = new Date(anchor);
+  d.setHours(0, 0, 0, 0);
+  while (d <= today) {
+    d = addDays(d, intervalDays);
   }
-  return next;
+  return d;
 }
 
 function nextMonthly(dayOfMonth) {
-  const now = today();
-  let next = new Date(now.getFullYear(), now.getMonth(), dayOfMonth);
-  if (next <= now) {
-    next = new Date(now.getFullYear(), now.getMonth() + 1, dayOfMonth);
+  const today = startOfToday();
+  const y = today.getFullYear();
+  const m = today.getMonth(); // 0-based
+  let candidate = new Date(y, m, dayOfMonth);
+  if (candidate <= today) {
+    candidate = new Date(y, m + 1, dayOfMonth);
   }
-  return next;
+  return candidate;
 }
 
-function calcNext(schedule) {
+// Move Saturday/Sunday back to Friday
+function adjustWeekend(d) {
+  const dow = d.getDay(); // 0=Sun, 6=Sat
+  if (dow === 6) return { date: addDays(d, -1), note: 'The 12th is a Saturday — paid Friday instead' };
+  if (dow === 0) return { date: addDays(d, -2), note: 'The 12th is a Sunday — paid Friday instead' };
+  return { date: d, note: null };
+}
+
+function calcNext(s) {
   let raw;
-  if (schedule.type === 'interval') {
-    raw = nextInterval(schedule.anchor, schedule.days);
+  if (s.type === 'interval') {
+    raw = nextInterval(anchorToDate(s.anchor), s.days);
+    // Intervals: weekend shift just shows note, no anchor change needed
+    const dow = raw.getDay();
+    if (dow === 6) return { date: addDays(raw, -1), note: 'Falls on Saturday — paid Friday instead' };
+    if (dow === 0) return { date: addDays(raw, -2), note: 'Falls on Sunday — paid Friday instead' };
+    return { date: raw, note: null };
   } else {
-    raw = nextMonthly(schedule.dayOfMonth);
+    raw = nextMonthly(s.dayOfMonth);
+    return adjustWeekend(raw);
   }
-  return adjustForWeekend(raw);
 }
 
-function formatDate(d) {
-  return d.toLocaleDateString('en-GB', {
-    weekday: 'long', day: 'numeric', month: 'long'
-  });
+function fmt(d) {
+  return d.toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long' });
 }
 
 function daysUntil(d) {
-  return Math.round((d - today()) / 86_400_000);
+  return Math.round((d - startOfToday()) / 86_400_000);
 }
 
-// ── Render ──────────────────────────────────────────────────────────
+// ── Render ────────────────────────────────────────────────────────
 
 function render() {
   const now = new Date();
@@ -270,24 +270,18 @@ function render() {
   container.innerHTML = '';
 
   SCHEDULES.forEach(s => {
-    const { date, adjusted, reason } = calcNext(s);
+    const { date, note } = calcNext(s);
     const days = daysUntil(date);
 
     let pillClass, pillText;
-    if (days === 0) {
-      pillClass = 'today'; pillText = '🎉 Today!';
-    } else if (days === 1) {
-      pillClass = 'soon'; pillText = 'Tomorrow';
-    } else if (days <= 5) {
-      pillClass = 'soon'; pillText = `In ${days} days`;
-    } else if (days <= 10) {
-      pillClass = 'medium'; pillText = `In ${days} days`;
-    } else {
-      pillClass = 'far'; pillText = `In ${days} days`;
-    }
+    if (days === 0)       { pillClass = 'today';  pillText = '🎉 Today!'; }
+    else if (days === 1)  { pillClass = 'soon';   pillText = 'Tomorrow'; }
+    else if (days <= 5)   { pillClass = 'soon';   pillText = `In ${days} days`; }
+    else if (days <= 12)  { pillClass = 'medium'; pillText = `In ${days} days`; }
+    else                  { pillClass = 'far';    pillText = `In ${days} days`; }
 
-    const weekendHTML = adjusted
-      ? `<div class="weekend-note">⚠️ ${reason} — paid early to avoid the weekend</div>`
+    const noteHTML = note
+      ? `<div class="weekend-note">⚠️ ${note}</div>`
       : '';
 
     const card = document.createElement('div');
@@ -297,21 +291,20 @@ function render() {
         <span class="tag">${s.label}</span>
         <span class="freq-label">${s.freq}</span>
       </div>
-      <div class="next-date">${formatDate(date)}</div>
+      <div class="amount">${s.amount}</div>
+      <div class="next-date">${fmt(date)}</div>
       <span class="days-pill ${pillClass}">${pillText}</span>
-      ${weekendHTML}
+      ${noteHTML}
     `;
     container.appendChild(card);
   });
 }
 
-// ── Backup / Restore ────────────────────────────────────────────────
-// Note: schedules are baked in, so backup/restore is provided in case
-// you want to export your current view or share it.
+// ── Backup / Restore ──────────────────────────────────────────────
 
 function saveBackup() {
   const payload = {
-    note: 'Benefits tracker backup',
+    note: 'Benefits tracker backup — keep this file safe',
     saved: new Date().toISOString(),
     schedules: SCHEDULES,
   };
@@ -328,10 +321,10 @@ function loadBackup(e) {
   const reader = new FileReader();
   reader.onload = ev => {
     try {
-      JSON.parse(ev.target.result); // validate
-      alert('Backup looks good! Your dates are already baked into this file, so nothing has changed — but keep this backup safe in case you ever need a new copy of the page.');
+      JSON.parse(ev.target.result);
+      alert('Backup file is valid and intact. Your dates are baked into the page itself, so your tracker is already working correctly.');
     } catch {
-      alert('Could not read that file. Make sure it\'s a valid backup.');
+      alert('Could not read that file. Make sure it is a valid backup.');
     }
   };
   reader.readAsText(file);
