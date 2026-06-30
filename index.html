@@ -5,922 +5,319 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
 <title>Exercise Timer</title>
 <style>
+  @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500&display=swap');
   :root {
-    --bg:#0e0e0e;
-    --surface:#1a1a1a;
-    --surface2:#242424;
-    --border:#2e2e2e;
-    --accent:#e8ff47;
-    --blue:#47c8ff;
-    --text:#f0f0f0;
-    --muted:#888;
-    --green:#73e2a7;
+    --bg:#0e0e0e;--surface:#1a1a1a;--surface2:#242424;
+    --border:#2e2e2e;--accent:#e8ff47;--blue:#47c8ff;--text:#f0f0f0;--muted:#777;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+  body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min-height:100vh;}
+
+  #setup{padding:24px 20px 60px;max-width:480px;margin:0 auto;}
+  h1{font-family:'Bebas Neue',sans-serif;font-size:2.6rem;color:var(--accent);letter-spacing:3px;margin-bottom:28px;}
+  .card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:18px;margin-bottom:14px;}
+  .card-title{font-size:0.6rem;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:14px;}
+  .row{display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);}
+  .row:last-child{border-bottom:none;}
+  .row label{font-size:0.9rem;}
+  .row span{font-size:0.75rem;color:var(--muted);margin-right:8px;}
+  input[type=number]{
+    width:68px;background:var(--surface2);border:1px solid var(--border);
+    border-radius:10px;color:var(--text);font-family:'Bebas Neue',sans-serif;
+    font-size:1.4rem;text-align:center;padding:5px 4px;
+    -webkit-appearance:none;appearance:none;outline:none;
+  }
+  input[type=number]:focus{border-color:var(--accent);}
+  #totalPreview{
+    text-align:center;padding:14px;margin-bottom:10px;
+    color:var(--muted);font-size:0.8rem;letter-spacing:1px;
+  }
+  #totalPreview strong{
+    font-family:'Bebas Neue',sans-serif;font-size:1.5rem;
+    color:var(--text);letter-spacing:2px;display:block;margin-top:2px;
+  }
+  #startBtn{
+    display:block;width:100%;padding:18px;background:var(--accent);color:#0e0e0e;
+    font-family:'Bebas Neue',sans-serif;font-size:1.8rem;letter-spacing:3px;
+    border:none;border-radius:16px;cursor:pointer;margin-top:0;
   }
 
-  * {
-    box-sizing:border-box;
-    margin:0;
-    padding:0;
-    -webkit-tap-highlight-color:transparent;
-  }
+  #timer{display:none;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;padding:30px 20px;text-align:center;}
+  #phase{font-size:0.7rem;letter-spacing:3px;text-transform:uppercase;color:var(--muted);margin-bottom:12px;}
+  #bigTime{font-family:'Bebas Neue',sans-serif;font-size:22vw;line-height:1;color:var(--accent);transition:color 0.3s;}
 
-  body {
-    min-height:100vh;
-    background:var(--bg);
-    color:var(--text);
-    font-family:Arial, Helvetica, sans-serif;
-  }
+  /* Progress label now shows set/exercise info */
+  #progLabel{font-size:1rem;font-weight:500;color:var(--text);margin-top:18px;letter-spacing:0.5px;min-height:1.4em;}
 
-  button, input {
-    font:inherit;
-  }
+  /* Elapsed time shown small below */
+  #elapsedLabel{font-size:0.75rem;color:var(--muted);margin-top:6px;letter-spacing:1px;}
 
-  #setup {
-    max-width:480px;
-    margin:0 auto;
-    padding:24px 20px 60px;
+  .bar-wrap{width:100%;max-width:340px;background:var(--surface2);border-radius:99px;height:6px;margin-top:16px;overflow:hidden;}
+  .bar-fill{height:100%;background:var(--accent);border-radius:99px;transition:width 1s linear;}
+  .controls{display:flex;gap:14px;margin-top:36px;width:100%;max-width:340px;}
+  .set-controls{display:flex;gap:14px;margin-top:14px;width:100%;max-width:340px;}
+  .ctrl-btn{
+    flex:1;padding:16px;background:var(--surface);border:1px solid var(--border);
+    border-radius:14px;color:var(--text);font-family:'DM Sans',sans-serif;
+    font-size:0.85rem;font-weight:500;cursor:pointer;
   }
+  .ctrl-btn:active{background:var(--surface2);}
+  .ctrl-btn:disabled{opacity:0.35;cursor:default;}
 
-  h1 {
-    margin-bottom:28px;
-    color:var(--accent);
-    font-family:Impact, "Arial Narrow", sans-serif;
-    font-size:2.6rem;
-    font-weight:400;
-    letter-spacing:3px;
-  }
-
-  .card {
-    margin-bottom:14px;
-    padding:18px;
-    border:1px solid var(--border);
-    border-radius:16px;
-    background:var(--surface);
-  }
-
-  .card-title {
-    margin-bottom:14px;
-    color:var(--muted);
-    font-size:0.68rem;
-    letter-spacing:2px;
-    text-transform:uppercase;
-  }
-
-  .row {
-    display:flex;
-    align-items:center;
-    justify-content:space-between;
-    gap:12px;
-    padding:8px 0;
-    border-bottom:1px solid var(--border);
-  }
-
-  .row:last-child {
-    border-bottom:none;
-  }
-
-  .row label {
-    font-size:0.9rem;
-  }
-
-  .unit {
-    margin-right:8px;
-    color:var(--muted);
-    font-size:0.75rem;
-  }
-
-  input[type=number] {
-    width:68px;
-    padding:5px 4px;
-    border:1px solid var(--border);
-    border-radius:10px;
-    outline:none;
-    background:var(--surface2);
-    color:var(--text);
-    font-family:Impact, "Arial Narrow", sans-serif;
-    font-size:1.35rem;
-    text-align:center;
-    -webkit-appearance:none;
-    appearance:none;
-  }
-
-  input[type=number]:focus {
-    border-color:var(--accent);
-  }
-
-  #totalPreview {
-    margin-bottom:10px;
-    padding:14px;
-    color:var(--muted);
-    font-size:0.8rem;
-    letter-spacing:1px;
-    text-align:center;
-  }
-
-  #previewTime {
-    display:block;
-    margin-top:3px;
-    color:var(--text);
-    font-family:Impact, "Arial Narrow", sans-serif;
-    font-size:1.55rem;
-    font-weight:400;
-    letter-spacing:2px;
-  }
-
-  #startBtn {
-    display:block;
-    width:100%;
-    padding:18px;
-    border:0;
-    border-radius:16px;
-    background:var(--accent);
-    color:#0e0e0e;
-    cursor:pointer;
-    font-family:Impact, "Arial Narrow", sans-serif;
-    font-size:1.8rem;
-    letter-spacing:3px;
-  }
-
-  .stats-grid {
-    display:grid;
-    grid-template-columns:1fr 1fr;
-    gap:10px;
-  }
-
-  .stat {
-    padding:12px;
-    border:1px solid var(--border);
-    border-radius:12px;
-    background:var(--surface2);
-  }
-
-  .stat-value {
-    display:block;
-    color:var(--text);
-    font-family:Impact, "Arial Narrow", sans-serif;
-    font-size:1.55rem;
-    font-weight:400;
-    letter-spacing:1px;
-  }
-
-  .stat-label {
-    display:block;
-    margin-top:3px;
-    color:var(--muted);
-    font-size:0.67rem;
-    letter-spacing:1px;
-    line-height:1.3;
-    text-transform:uppercase;
-  }
-
-  #historyList {
-    margin-top:14px;
-  }
-
-  .history-row {
-    display:flex;
-    justify-content:space-between;
-    gap:12px;
-    padding:9px 0;
-    border-top:1px solid var(--border);
-    color:var(--muted);
-    font-size:0.78rem;
-  }
-
-  .history-result {
-    color:var(--text);
-    font-weight:600;
-    text-align:right;
-  }
-
-  .small-btn {
-    width:100%;
-    margin-top:12px;
-    padding:11px;
-    border:1px solid var(--border);
-    border-radius:11px;
-    background:transparent;
-    color:var(--muted);
-    cursor:pointer;
-    font-size:0.75rem;
-  }
-
-  #timer {
-    display:none;
-    min-height:100vh;
-    padding:30px 20px;
-    flex-direction:column;
-    align-items:center;
-    justify-content:center;
-    text-align:center;
-  }
-
-  #phase {
-    margin-bottom:12px;
-    color:var(--muted);
-    font-size:0.7rem;
-    letter-spacing:3px;
-    text-transform:uppercase;
-  }
-
-  #bigTime {
-    color:var(--accent);
-    font-family:Impact, "Arial Narrow", sans-serif;
-    font-size:min(22vw, 8rem);
-    font-weight:400;
-    line-height:1;
-  }
-
-  #progLabel {
-    min-height:1.4em;
-    margin-top:18px;
-    color:var(--text);
-    font-size:1rem;
-    font-weight:600;
-  }
-
-  #elapsedLabel {
-    margin-top:6px;
-    color:var(--muted);
-    font-size:0.75rem;
-    letter-spacing:1px;
-  }
-
-  #planStatus {
-    min-height:1.4em;
-    margin-top:10px;
-    color:var(--green);
-    font-size:0.8rem;
-  }
-
-  .bar-wrap {
-    width:100%;
-    max-width:340px;
-    height:6px;
-    margin-top:16px;
-    overflow:hidden;
-    border-radius:99px;
-    background:var(--surface2);
-  }
-
-  #bar {
-    width:100%;
-    height:100%;
-    border-radius:99px;
-    background:var(--accent);
-  }
-
-  .controls,
-  .set-controls {
-    display:flex;
-    width:100%;
-    max-width:390px;
-    gap:10px;
-  }
-
-  .controls {
-    margin-top:30px;
-  }
-
-  .set-controls {
-    margin-top:12px;
-  }
-
-  .ctrl-btn,
-  .set-btn {
-    flex:1;
-    min-height:52px;
-    padding:12px 8px;
-    border-radius:14px;
-    cursor:pointer;
-    font-size:0.76rem;
-    font-weight:700;
-  }
-
-  .ctrl-btn {
-    border:1px solid var(--border);
-    background:var(--surface);
-    color:var(--text);
-  }
-
-  .set-btn {
-    background:transparent;
-  }
-
-  .set-btn.add {
-    border:1px solid rgba(115,226,167,0.65);
-    color:var(--green);
-  }
-
-  .set-btn.last {
-    border:1px solid rgba(71,200,255,0.65);
-    color:var(--blue);
-  }
-
-  #doneScreen {
-    display:none;
-    min-height:100vh;
-    padding:30px;
-    flex-direction:column;
-    align-items:center;
-    justify-content:center;
-    text-align:center;
-  }
-
-  #doneScreen h2 {
-    color:var(--accent);
-    font-family:Impact, "Arial Narrow", sans-serif;
-    font-size:4rem;
-    font-weight:400;
-    letter-spacing:4px;
-  }
-
-  #doneScreen p {
-    margin-top:10px;
-    color:var(--muted);
-  }
-
-  #totalTime,
-  #setsDone {
-    margin-top:20px;
-    color:var(--text);
-    font-family:Impact, "Arial Narrow", sans-serif;
-    font-size:2.2rem;
-    font-weight:400;
-    letter-spacing:2px;
-  }
-
-  #setsDone {
-    margin-top:17px;
-    color:var(--blue);
-    font-size:1.8rem;
-  }
-
-  .result-label {
-    margin-top:4px;
-    color:var(--muted);
-    font-size:0.65rem;
-    letter-spacing:2px;
-    text-transform:uppercase;
-  }
-
-  #recordNote {
-    min-height:1.4em;
-    margin-top:16px;
-    color:var(--green);
-    font-size:0.85rem;
-  }
-
-  #againBtn {
-    margin-top:28px;
-    padding:16px 40px;
-    border:0;
-    border-radius:14px;
-    background:var(--accent);
-    color:#0e0e0e;
-    cursor:pointer;
-    font-family:Impact, "Arial Narrow", sans-serif;
-    font-size:1.5rem;
-    letter-spacing:2px;
-  }
-
-  @media (max-width:390px) {
-    .ctrl-btn, .set-btn {
-      font-size:0.68rem;
-      padding:11px 5px;
-    }
-  }
+  #doneScreen{display:none;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;text-align:center;padding:30px;}
+  #doneScreen h2{font-family:'Bebas Neue',sans-serif;font-size:4rem;color:var(--accent);letter-spacing:4px;}
+  #doneScreen p{color:var(--muted);margin-top:10px;}
+  #totalTime{font-family:'Bebas Neue',sans-serif;font-size:2.2rem;color:var(--text);margin-top:20px;letter-spacing:2px;}
+  #totalTimeLabel{font-size:0.65rem;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-top:4px;}
+  #againBtn{margin-top:32px;padding:16px 40px;background:var(--accent);color:#0e0e0e;font-family:'Bebas Neue',sans-serif;font-size:1.5rem;letter-spacing:2px;border:none;border-radius:14px;cursor:pointer;}
 </style>
 </head>
 <body>
 
 <div id="setup">
   <h1>TIMER</h1>
-
   <div class="card">
     <div class="card-title">Warmup</div>
-    <div class="row">
-      <label for="warmup">Duration</label>
-      <div><span class="unit">sec</span><input type="number" id="warmup" value="60" min="0" oninput="updatePreview()"></div>
-    </div>
+    <div class="row"><label>Duration</label><div><span>sec</span><input type="number" id="warmup" value="60" min="0"></div></div>
   </div>
-
   <div class="card">
     <div class="card-title">Exercises</div>
-    <div class="row">
-      <label for="exCount">Exercises per set</label>
-      <div><input type="number" id="exCount" value="5" min="1" oninput="updatePreview()"></div>
-    </div>
-    <div class="row">
-      <label for="exTime">Work time</label>
-      <div><span class="unit">sec</span><input type="number" id="exTime" value="40" min="1" oninput="updatePreview()"></div>
-    </div>
-    <div class="row">
-      <label for="exRest">Rest between exercises</label>
-      <div><span class="unit">sec</span><input type="number" id="exRest" value="15" min="0" oninput="updatePreview()"></div>
-    </div>
+    <div class="row"><label>Exercises per set</label><div><input type="number" id="exCount" value="5" min="1"></div></div>
+    <div class="row"><label>Work time</label><div><span>sec</span><input type="number" id="exTime" value="40" min="1"></div></div>
+    <div class="row"><label>Rest between exercises</label><div><span>sec</span><input type="number" id="exRest" value="15" min="0"></div></div>
   </div>
-
   <div class="card">
     <div class="card-title">Sets</div>
-    <div class="row">
-      <label for="sets">Number of sets</label>
-      <div><input type="number" id="sets" value="3" min="1" oninput="updatePreview()"></div>
-    </div>
-    <div class="row">
-      <label for="setCooldown">Cooldown between sets</label>
-      <div><span class="unit">sec</span><input type="number" id="setCooldown" value="60" min="0" oninput="updatePreview()"></div>
-    </div>
+    <div class="row"><label>Number of sets</label><div><input type="number" id="sets" value="3" min="1"></div></div>
+    <div class="row"><label>Cooldown between sets</label><div><span>sec</span><input type="number" id="setCooldown" value="60" min="0"></div></div>
   </div>
-
   <div class="card">
     <div class="card-title">Finish</div>
-    <div class="row">
-      <label for="finalCooldown">Final cooldown</label>
-      <div><span class="unit">sec</span><input type="number" id="finalCooldown" value="120" min="0" oninput="updatePreview()"></div>
-    </div>
+    <div class="row"><label>Final cooldown</label><div><span>sec</span><input type="number" id="finalCooldown" value="120" min="0"></div></div>
   </div>
-
-  <div id="totalPreview">
-    TOTAL WORKOUT TIME
-    <strong id="previewTime">18:00</strong>
-  </div>
-
-  <button id="startBtn" type="button" onclick="startWorkout()">START</button>
-
-  <div class="card" style="margin-top:18px">
-    <div class="card-title">Records on this device</div>
-
-    <div class="stats-grid">
-      <div class="stat">
-        <span class="stat-value" id="completedStat">0</span>
-        <span class="stat-label">Completed workouts</span>
-      </div>
-      <div class="stat">
-        <span class="stat-value" id="daysStat">0</span>
-        <span class="stat-label">Workout days</span>
-      </div>
-      <div class="stat">
-        <span class="stat-value" id="longestStat">00:00</span>
-        <span class="stat-label">Longest workout</span>
-      </div>
-      <div class="stat">
-        <span class="stat-value" id="setsStat">0</span>
-        <span class="stat-label">Most sets</span>
-      </div>
-    </div>
-
-    <div id="historyList">
-      <div class="history-row"><span>Completed workouts will appear here.</span></div>
-    </div>
-
-    <button class="small-btn" type="button" onclick="clearHistory()">CLEAR RECORDS</button>
-  </div>
+  <div id="totalPreview">TOTAL WORKOUT TIME<strong id="previewTime"></strong></div>
+  <button id="startBtn" onclick="startWorkout()">START</button>
 </div>
 
 <div id="timer">
   <div id="phase">WARMUP</div>
   <div id="bigTime">0</div>
   <div id="progLabel"></div>
-  <div id="elapsedLabel">Elapsed: 00:00</div>
-  <div id="planStatus"></div>
-
-  <div class="bar-wrap"><div id="bar"></div></div>
-
+  <div id="elapsedLabel"></div>
+  <div class="bar-wrap"><div class="bar-fill" id="bar" style="width:100%"></div></div>
   <div class="controls">
-    <button class="ctrl-btn" type="button" id="pauseBtn" onclick="togglePause()">PAUSE</button>
-    <button class="ctrl-btn" type="button" onclick="skipPhase()">SKIP</button>
-    <button class="ctrl-btn" type="button" onclick="stopWorkout()">STOP</button>
+    <button class="ctrl-btn" onclick="togglePause()" id="pauseBtn">PAUSE</button>
+    <button class="ctrl-btn" onclick="skipPhase()">SKIP</button>
+    <button class="ctrl-btn" onclick="stopWorkout()">STOP</button>
   </div>
-
   <div class="set-controls">
-    <button class="set-btn add" type="button" onclick="addOneSet()">+ ADD ONE SET</button>
-    <button class="set-btn last" type="button" onclick="makeCurrentSetLast()">CURRENT SET IS LAST</button>
+    <button class="ctrl-btn" onclick="addSet()" id="addSetBtn">+ SET</button>
+    <button class="ctrl-btn" onclick="makeCurrentSetLast()" id="lastSetBtn">LAST SET</button>
   </div>
 </div>
 
 <div id="doneScreen">
   <h2>DONE!</h2>
-  <p>Great work</p>
-
-  <div id="totalTime">00:00</div>
-  <div class="result-label">Total time</div>
-
-  <div id="setsDone">0</div>
-  <div class="result-label">Sets completed</div>
-
-  <div id="recordNote"></div>
-
-  <button id="againBtn" type="button" onclick="showSetup()">AGAIN</button>
+  <p>Great work 💪</p>
+  <div id="totalTime"></div>
+  <div id="totalTimeLabel">Total time</div>
+  <button id="againBtn" onclick="location.reload()">AGAIN</button>
 </div>
 
 <script>
-var HISTORY_KEY = "exercise-timer-history-v2";
+let phases=[],idx=0,remaining=0,total=0,iv=null,paused=false;
+let elapsedSecs=0,elapsedIv=null;
+let plannedSets=0,workoutConfig=null;
 
-var phases = [];
-var phaseIndex = 0;
-var remaining = 0;
-var phaseDuration = 0;
-var phaseTimer = null;
-var elapsedTimer = null;
-var nextPhaseTimer = null;
-var statusTimer = null;
-var paused = false;
-var elapsedSeconds = 0;
-var completedSets = 0;
-var totalSets = 0;
-var settings = null;
-var memoryHistory = [];
+function calcTotal(){
+  const w=+document.getElementById('warmup').value||0;
+  const ec=+document.getElementById('exCount').value||0;
+  const et=+document.getElementById('exTime').value||0;
+  const er=+document.getElementById('exRest').value||0;
+  const s=+document.getElementById('sets').value||0;
+  const sc=+document.getElementById('setCooldown').value||0;
+  const fc=+document.getElementById('finalCooldown').value||0;
+  const perSet=ec*et+(ec-1)*er;
+  const total=w+s*perSet+(s-1)*sc+fc;
+  return total;
+}
+function updatePreview(){
+  const t=calcTotal();
+  document.getElementById('previewTime').textContent=fmtElapsed(t);
+}
+document.querySelectorAll('input[type=number]').forEach(el=>el.addEventListener('input',updatePreview));
 
-function getNumber(id, fallback) {
-  var value = parseInt(document.getElementById(id).value, 10);
-  if (isNaN(value)) {
-    return fallback;
-  }
-  return value;
+const AC=window.AudioContext||window.webkitAudioContext;
+function beep(f,d,v=0.3){
+  try{const c=new AC(),o=c.createOscillator(),g=c.createGain();
+  o.connect(g);g.connect(c.destination);o.frequency.value=f;o.type='sine';
+  g.gain.setValueAtTime(v,c.currentTime);
+  g.gain.exponentialRampToValueAtTime(0.001,c.currentTime+d);
+  o.start(c.currentTime);o.stop(c.currentTime+d);}catch(e){}
+}
+function bStart(){beep(880,.15);setTimeout(()=>beep(880,.15),180);setTimeout(()=>beep(1320,.3),360);}
+function bEnd(){beep(440,.2);setTimeout(()=>beep(330,.4),220);}
+function bTick(){beep(660,.08,.15);}
+
+function fmtTime(s){
+  const m=Math.floor(s/60),sec=s%60;
+  return m>0?`${m}:${String(sec).padStart(2,'0')}`:String(sec);
+}
+function fmtElapsed(s){
+  const h=Math.floor(s/3600),m=Math.floor((s%3600)/60),sec=s%60;
+  if(h>0)return`${h}:${String(m).padStart(2,'0')}:${String(sec).padStart(2,'0')}`;
+  return`${String(m).padStart(2,'0')}:${String(sec).padStart(2,'0')}`;
 }
 
-function readSettings() {
-  return {
-    warmup: Math.max(0, getNumber("warmup", 0)),
-    exerciseCount: Math.max(1, getNumber("exCount", 1)),
-    exerciseTime: Math.max(1, getNumber("exTime", 1)),
-    exerciseRest: Math.max(0, getNumber("exRest", 0)),
-    sets: Math.max(1, getNumber("sets", 1)),
-    setCooldown: Math.max(0, getNumber("setCooldown", 0)),
-    finalCooldown: Math.max(0, getNumber("finalCooldown", 0))
-  };
-}
-
-function twoDigits(value) {
-  return value < 10 ? "0" + value : String(value);
-}
-
-function formatElapsed(seconds) {
-  var safe = Math.max(0, Math.round(seconds));
-  var hours = Math.floor(safe / 3600);
-  var minutes = Math.floor((safe % 3600) / 60);
-  var secs = safe % 60;
-
-  if (hours > 0) {
-    return hours + ":" + twoDigits(minutes) + ":" + twoDigits(secs);
-  }
-
-  return twoDigits(minutes) + ":" + twoDigits(secs);
-}
-
-function formatTimer(seconds) {
-  var safe = Math.max(0, Math.round(seconds));
-  var minutes = Math.floor(safe / 60);
-  var secs = safe % 60;
-
-  if (minutes > 0) {
-    return minutes + ":" + twoDigits(secs);
-  }
-
-  return String(secs);
-}
-
-function calculateTotal() {
-  var s = readSettings();
-  var oneSet = (s.exerciseCount * s.exerciseTime) +
-    ((s.exerciseCount - 1) * s.exerciseRest);
-
-  return s.warmup +
-    (s.sets * oneSet) +
-    ((s.sets - 1) * s.setCooldown) +
-    s.finalCooldown;
-}
-
-function updatePreview() {
-  var preview = document.getElementById("previewTime");
-  if (preview) {
-    preview.innerHTML = formatElapsed(calculateTotal());
-  }
-}
-
-function makeSetPhases(setNumber) {
-  var list = [];
-  var exercise;
-
-  for (exercise = 1; exercise <= settings.exerciseCount; exercise += 1) {
-    list.push({
-      type: "work",
-      label: "WORK",
-      duration: settings.exerciseTime,
-      color: "var(--accent)",
-      setNumber: setNumber,
-      exerciseNumber: exercise
-    });
-
-    if (exercise < settings.exerciseCount && settings.exerciseRest > 0) {
-      list.push({
-        type: "exerciseRest",
-        label: "REST",
-        duration: settings.exerciseRest,
-        color: "var(--blue)",
-        setNumber: setNumber,
-        exerciseNumber: exercise
-      });
+function makeSetPhases(set){
+  const list=[];
+  for(let ex=1;ex<=workoutConfig.ec;ex++){
+    list.push({kind:'work',set,exercise:ex,label:'WORK',dur:workoutConfig.et,col:'var(--accent)',prog:''});
+    if(ex<workoutConfig.ec&&workoutConfig.er>0){
+      list.push({kind:'exerciseRest',set,exercise:ex,label:'REST',dur:workoutConfig.er,col:'var(--blue)',prog:''});
     }
   }
-
   return list;
 }
 
-function makeSetCooldown(setNumber) {
-  return {
-    type: "setCooldown",
-    label: "SET " + setNumber + " COOLDOWN",
-    duration: settings.setCooldown,
-    color: "var(--blue)",
-    setNumber: setNumber
-  };
-}
-
-function makeFinalCooldown() {
-  return {
-    type: "finalCooldown",
-    label: "FINAL COOLDOWN",
-    duration: settings.finalCooldown,
-    color: "var(--blue)"
-  };
-}
-
-function buildPhases() {
-  var list = [];
-  var setNumber;
-  var setParts;
-  var i;
-
-  if (settings.warmup > 0) {
-    list.push({
-      type: "warmup",
-      label: "WARMUP",
-      duration: settings.warmup,
-      color: "var(--blue)"
-    });
-  }
-
-  for (setNumber = 1; setNumber <= totalSets; setNumber += 1) {
-    setParts = makeSetPhases(setNumber);
-
-    for (i = 0; i < setParts.length; i += 1) {
-      list.push(setParts[i]);
+function refreshPhaseLabels(){
+  phases.forEach(p=>{
+    if(p.kind==='work')p.prog=`Set ${p.set} of ${plannedSets}  ·  Exercise ${p.exercise} of ${workoutConfig.ec}`;
+    if(p.kind==='exerciseRest')p.prog=`Set ${p.set} of ${plannedSets}  ·  After exercise ${p.exercise}`;
+    if(p.kind==='setCooldown'){
+      p.label=`SET ${p.set} COOLDOWN`;
+      p.prog=`Set ${p.set} of ${plannedSets} complete`;
     }
+  });
+  if(phases[idx])document.getElementById('progLabel').textContent=phases[idx].prog||'';
+}
 
-    if (setNumber < totalSets && settings.setCooldown > 0) {
-      list.push(makeSetCooldown(setNumber));
+function buildPhases(){
+  workoutConfig={
+    w:+document.getElementById('warmup').value,
+    ec:+document.getElementById('exCount').value,
+    et:+document.getElementById('exTime').value,
+    er:+document.getElementById('exRest').value,
+    sc:+document.getElementById('setCooldown').value,
+    fc:+document.getElementById('finalCooldown').value
+  };
+  plannedSets=+document.getElementById('sets').value;
+  const list=[];
+  if(workoutConfig.w>0)list.push({kind:'warmup',label:'WARMUP',dur:workoutConfig.w,col:'var(--blue)',prog:''});
+  for(let set=1;set<=plannedSets;set++){
+    list.push(...makeSetPhases(set));
+    if(set<plannedSets&&workoutConfig.sc>0){
+      list.push({kind:'setCooldown',set,label:'',dur:workoutConfig.sc,col:'var(--blue)',prog:''});
     }
   }
-
-  if (settings.finalCooldown > 0) {
-    list.push(makeFinalCooldown());
-  }
-
-  return list;
+  if(workoutConfig.fc>0)list.push({kind:'finalCooldown',label:'FINAL COOLDOWN',dur:workoutConfig.fc,col:'var(--blue)',prog:'All sets complete'});
+  phases=list;
+  refreshPhaseLabels();
+  return phases;
 }
 
-function getProgressText(phase) {
-  if (phase.type === "warmup") {
-    return "Preparing for " + totalSets + (totalSets === 1 ? " set" : " sets");
-  }
+updatePreview();
 
-  if (phase.type === "work") {
-    return "Set " + phase.setNumber + " of " + totalSets +
-      "  ·  Exercise " + phase.exerciseNumber + " of " + settings.exerciseCount;
-  }
-
-  if (phase.type === "exerciseRest") {
-    return "Set " + phase.setNumber + " of " + totalSets +
-      "  ·  After exercise " + phase.exerciseNumber;
-  }
-
-  if (phase.type === "setCooldown") {
-    return "Set " + phase.setNumber + " of " + totalSets + " complete";
-  }
-
-  return "All " + totalSets + (totalSets === 1 ? " set complete" : " sets complete");
-}
-
-function startWorkout() {
-  settings = readSettings();
-  totalSets = settings.sets;
-  phases = buildPhases();
-
-  if (phases.length === 0) {
-    return;
-  }
-
-  clearAllTimers();
-
-  document.getElementById("setup").style.display = "none";
-  document.getElementById("doneScreen").style.display = "none";
-  document.getElementById("timer").style.display = "flex";
-
-  phaseIndex = 0;
-  elapsedSeconds = 0;
-  completedSets = 0;
-  paused = false;
-
-  document.getElementById("pauseBtn").innerHTML = "PAUSE";
-  document.getElementById("planStatus").innerHTML = "";
-  updateElapsed();
+function startWorkout(){
+  phases=buildPhases();
+  if(!phases.length)return;
+  document.getElementById('setup').style.display='none';
+  document.getElementById('timer').style.display='flex';
+  idx=0;paused=false;elapsedSecs=0;
+  clearInterval(elapsedIv);
+  elapsedIv=setInterval(()=>{if(!paused){elapsedSecs++;updateElapsed();}},1000);
   loadPhase();
-
-  elapsedTimer = setInterval(function () {
-    if (!paused) {
-      elapsedSeconds += 1;
-      updateElapsed();
-    }
-  }, 1000);
 }
 
-function loadPhase() {
-  var phase;
-
-  clearInterval(phaseTimer);
-  clearTimeout(nextPhaseTimer);
-
-  if (phaseIndex >= phases.length) {
-    finishWorkout();
-    return;
-  }
-
-  phase = phases[phaseIndex];
-  remaining = phase.duration;
-  phaseDuration = phase.duration;
-
-  document.getElementById("phase").innerHTML = phase.label;
-  document.getElementById("bigTime").style.color = phase.color;
-  document.getElementById("bar").style.background = phase.color;
-  document.getElementById("progLabel").innerHTML = getProgressText(phase);
-
+function loadPhase(){
+  if(idx>=phases.length){finish();return;}
+  const p=phases[idx];
+  remaining=total=p.dur;
+  document.getElementById('phase').textContent=p.label;
+  document.getElementById('bigTime').style.color=p.col;
+  document.getElementById('bar').style.background=p.col;
+  document.getElementById('progLabel').textContent=p.prog||'';
+  updateSetButtons();
+  bStart();
   updateDisplay();
-  playStartSound();
-
-  phaseTimer = setInterval(function () {
-    if (!paused) {
-      tick();
-    }
-  }, 1000);
+  clearInterval(iv);
+  iv=setInterval(()=>{if(!paused)tick();},1000);
 }
 
-function tick() {
-  if (remaining <= 3 && remaining > 0) {
-    playTickSound();
-  }
-
-  remaining -= 1;
+function tick(){
+  if(remaining<=3&&remaining>0)bTick();
+  remaining--;
   updateDisplay();
-
-  if (remaining <= 0) {
-    completePhase();
-  }
+  if(remaining<0){clearInterval(iv);bEnd();idx++;setTimeout(loadPhase,600);}
 }
 
-function completePhase() {
-  var phase = phases[phaseIndex];
-
-  clearInterval(phaseTimer);
-
-  if (
-    phase &&
-    phase.type === "work" &&
-    phase.exerciseNumber === settings.exerciseCount
-  ) {
-    completedSets = Math.max(completedSets, phase.setNumber);
-  }
-
-  playEndSound();
-  phaseIndex += 1;
-
-  nextPhaseTimer = setTimeout(function () {
-    loadPhase();
-  }, 400);
+function updateDisplay(){
+  const r=Math.max(0,remaining);
+  document.getElementById('bigTime').textContent=fmtTime(r);
+  document.getElementById('bar').style.width=(total>0?(r/total)*100:0)+'%';
 }
 
-function updateDisplay() {
-  var shown = Math.max(0, remaining);
-  var percentage = phaseDuration > 0 ? (shown / phaseDuration) * 100 : 0;
-
-  document.getElementById("bigTime").innerHTML = formatTimer(shown);
-  document.getElementById("bar").style.width = percentage + "%";
+function updateElapsed(){
+  document.getElementById('elapsedLabel').textContent='Elapsed: '+fmtElapsed(elapsedSecs);
 }
 
-function updateElapsed() {
-  document.getElementById("elapsedLabel").innerHTML =
-    "Elapsed: " + formatElapsed(elapsedSeconds);
+function updateSetButtons(){
+  const p=phases[idx];
+  document.getElementById('addSetBtn').disabled=!p||p.kind==='finalCooldown';
+  document.getElementById('lastSetBtn').disabled=!p||!p.set||p.kind==='finalCooldown';
 }
 
-function togglePause() {
-  paused = !paused;
-  document.getElementById("pauseBtn").innerHTML = paused ? "RESUME" : "PAUSE";
+function addSet(){
+  const current=phases[idx];
+  if(!current||current.kind==='finalCooldown')return;
+  const oldLastSet=plannedSets;
+  plannedSets++;
+  document.getElementById('sets').value=plannedSets;
+  const finalIndex=phases.findIndex((p,i)=>i>=idx&&p.kind==='finalCooldown');
+  const insertAt=finalIndex===-1?phases.length:finalIndex;
+  const added=[];
+  if(workoutConfig.sc>0){
+    added.push({kind:'setCooldown',set:oldLastSet,label:'',dur:workoutConfig.sc,col:'var(--blue)',prog:''});
+  }
+  added.push(...makeSetPhases(plannedSets));
+  phases.splice(insertAt,0,...added);
+  refreshPhaseLabels();
+  updatePreview();
 }
 
-function skipPhase() {
-  clearTimeout(nextPhaseTimer);
-  completePhase();
+function makeCurrentSetLast(){
+  const current=phases[idx];
+  if(!current||!current.set||current.kind==='finalCooldown')return;
+  const currentSet=current.set;
+  plannedSets=currentSet;
+  document.getElementById('sets').value=plannedSets;
+  phases=phases.filter((p,i)=>{
+    if(i<=idx)return true;
+    if(p.kind==='finalCooldown')return true;
+    return p.set===currentSet&&p.kind!=='setCooldown';
+  });
+  refreshPhaseLabels();
+  updatePreview();
+  updateSetButtons();
 }
 
-function currentSetNumber() {
-  var phase = phases[phaseIndex];
-
-  if (!phase) {
-    return totalSets;
-  }
-
-  if (phase.type === "warmup") {
-    return 1;
-  }
-
-  if (phase.type === "finalCooldown") {
-    return totalSets;
-  }
-
-  return phase.setNumber || totalSets;
+function togglePause(){
+  paused=!paused;
+  document.getElementById('pauseBtn').textContent=paused?'RESUME':'PAUSE';
 }
-
-function refreshCurrentProgress() {
-  var phase = phases[phaseIndex];
-
-  if (phase) {
-    document.getElementById("progLabel").innerHTML = getProgressText(phase);
-  }
+function skipPhase(){clearInterval(iv);bEnd();idx++;setTimeout(loadPhase,300);}
+function stopWorkout(){
+  clearInterval(iv);clearInterval(elapsedIv);
+  document.getElementById('timer').style.display='none';
+  document.getElementById('setup').style.display='block';
 }
-
-function showStatus(message) {
-  clearTimeout(statusTimer);
-  document.getElementById("planStatus").innerHTML = message;
-
-  statusTimer = setTimeout(function () {
-    document.getElementById("planStatus").innerHTML = "";
-  }, 4500);
+function finish(){
+  clearInterval(iv);clearInterval(elapsedIv);
+  document.getElementById('timer').style.display='none';
+  document.getElementById('doneScreen').style.display='flex';
+  document.getElementById('totalTime').textContent=fmtElapsed(elapsedSecs);
+  bStart();
 }
-
-function insertArrayAt(array, index, items) {
-  var args = [index, 0];
-  var i;
-
-  for (i = 0; i < items.length; i += 1) {
-    args.push(items[i]);
-  }
-
-  Array.prototype.splice.apply(array, args);
-}
-
-function addOneSet() {
-  var oldTotal;
-  var newSet;
-  var current;
-  var insertAt;
-  var additions = [];
-  var setParts;
-  var i;
-
-  if (!settings || !phases[phaseIndex]) {
-    return;
-  }
-
-  oldTotal = totalSets;
-  newSet = oldTotal + 1;
-  totalSets = newSet;
-  document.getElementById("sets").value = String(totalSets);
-  current = phases[phaseIndex];
-
-  if (current.type === "finalCooldown") {
-    if (settings.setCooldown > 0) {
-      additions.push(makeSetCooldown(oldTotal));
-    }
-
-    setParts = makeSetPhases(newSet);
-    for (i = 0; i < setParts.length; i += 1) {
-      additions.push(setParts[i]);
-    }
-
-    if (settings.finalCooldown > 0) {
-      additions.push(makeFinalCooldown());
-    }
-
-    phases.splice(phaseIndex, phases.length - phaseIndex);
-    insertArrayAt(phases, phaseIndex, additions);
-    showStatus("Set " + newSet + " added.");
-    loadPhase();
-    return;
-  }
-
-  insertAt = phases.length;
-
-  for (i = phaseIndex + 1; i < phases.length; i += 1) {
-    if (phases[i].type === "finalCooldown") {
-      insertAt = i;
-      break;
-    }
-  }
-
-  if (settings.setCooldown > 0) {
-    additions.push(makeSetCooldown(oldTotal));
-  }
-
-  setParts = makeSetPhases(newSet);
-  for (i =
+</script>
+</body>
+</html>
