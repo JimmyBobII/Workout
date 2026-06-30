@@ -7,186 +7,226 @@
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap');
 
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  *, *::before, *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
 
   :root {
-    --bg: #0f1117;
-    --surface: #1a1d27;
-    --surface2: #222636;
-    --border: #2e3248;
-    --text: #e8eaf0;
-    --muted: #7c82a0;
-    --pip: #6ea8fe;
-    --esa: #79dbb0;
-    --uc:  #f0a060;
-    --soon: #f06060;
-    --today-col: #a78bfa;
-    --radius: 16px;
+    --bg: #f4f7fb;
+    --surface: #ffffff;
+    --border: #dbe3ef;
+    --text: #273247;
+    --muted: #6f7c91;
+
+    --pip: #5f8fd8;
+    --pip-soft: #eaf2fd;
+
+    --esa: #4f9f84;
+    --esa-soft: #e9f7f1;
+
+    --uc: #c88548;
+    --uc-soft: #fff3e8;
+
+    --soon: #c86666;
+    --soon-soft: #fdeeee;
+
+    --today: #7b6fc4;
+    --today-soft: #f0edff;
+
+    --shadow: 0 10px 28px rgba(50, 69, 99, 0.08);
+    --radius: 18px;
   }
 
   body {
     font-family: 'Inter', sans-serif;
-    background: var(--bg);
+    background:
+      radial-gradient(circle at top, #ffffff 0, #f4f7fb 42%, #eef3f9 100%);
     color: var(--text);
     min-height: 100vh;
-    padding: 28px 16px 60px;
+    padding: 30px 16px 60px;
     max-width: 480px;
     margin: 0 auto;
   }
 
-  h1 { font-size: 1.5rem; font-weight: 700; margin-bottom: 4px; letter-spacing: -0.02em; }
-  .today-line { font-size: 0.82rem; color: var(--muted); margin-bottom: 32px; }
+  h1 {
+    font-size: 1.55rem;
+    font-weight: 700;
+    margin-bottom: 5px;
+    letter-spacing: -0.02em;
+  }
 
-  .cards { display: flex; flex-direction: column; gap: 14px; margin-bottom: 40px; }
+  .today-line {
+    font-size: 0.84rem;
+    color: var(--muted);
+    margin-bottom: 30px;
+  }
+
+  .cards {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+  }
 
   .card {
-    background: var(--surface);
+    background: rgba(255, 255, 255, 0.94);
     border: 1px solid var(--border);
     border-radius: var(--radius);
     padding: 20px 22px;
     position: relative;
     overflow: hidden;
+    box-shadow: var(--shadow);
   }
+
   .card::before {
     content: '';
     position: absolute;
-    left: 0; top: 0; bottom: 0;
-    width: 4px;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 5px;
   }
+
   .card.pip::before { background: var(--pip); }
   .card.esa::before { background: var(--esa); }
-  .card.uc::before  { background: var(--uc);  }
+  .card.uc::before  { background: var(--uc); }
 
   .card-header {
     display: flex;
     align-items: center;
     justify-content: space-between;
     margin-bottom: 14px;
+    gap: 12px;
   }
 
   .tag {
     font-size: 0.68rem;
     font-weight: 700;
-    letter-spacing: 0.14em;
+    letter-spacing: 0.13em;
     text-transform: uppercase;
-    padding: 3px 10px;
-    border-radius: 99px;
+    padding: 4px 10px;
+    border-radius: 999px;
   }
-  .pip .tag { background: rgba(110,168,254,0.15); color: var(--pip); }
-  .esa .tag { background: rgba(121,219,176,0.15); color: var(--esa); }
-  .uc  .tag { background: rgba(240,160,96,0.15);  color: var(--uc);  }
 
-  .freq-label { font-size: 0.75rem; color: var(--muted); }
+  .pip .tag { background: var(--pip-soft); color: var(--pip); }
+  .esa .tag { background: var(--esa-soft); color: var(--esa); }
+  .uc  .tag { background: var(--uc-soft); color: var(--uc); }
+
+  .freq-label {
+    font-size: 0.75rem;
+    color: var(--muted);
+    text-align: right;
+  }
 
   .amount {
     font-family: 'DM Mono', monospace;
     font-size: 1.05rem;
     font-weight: 500;
     margin-bottom: 10px;
-    opacity: 0.85;
   }
+
   .pip .amount { color: var(--pip); }
   .esa .amount { color: var(--esa); }
-  .uc  .amount { color: var(--uc);  }
+  .uc .amount  { color: var(--uc); }
 
   .next-date {
     font-family: 'DM Mono', monospace;
     font-size: 1.4rem;
     font-weight: 500;
     letter-spacing: -0.02em;
-    line-height: 1.2;
-    margin-bottom: 8px;
+    line-height: 1.25;
+    margin-bottom: 9px;
+    color: var(--text);
   }
 
   .days-pill {
     display: inline-block;
     font-size: 0.8rem;
     font-weight: 600;
-    padding: 3px 10px;
-    border-radius: 99px;
+    padding: 4px 10px;
+    border-radius: 999px;
     margin-bottom: 6px;
   }
-  .days-pill.far    { background: rgba(121,219,176,0.12); color: var(--esa); }
-  .days-pill.medium { background: rgba(240,160,96,0.12);  color: var(--uc);  }
-  .days-pill.soon   { background: rgba(240,96,96,0.15);   color: var(--soon);}
-  .days-pill.today  { background: rgba(167,139,250,0.2);  color: var(--today-col); }
 
-  .weekend-note { font-size: 0.75rem; color: var(--muted); font-style: italic; margin-top: 4px; }
+  .days-pill.far {
+    background: var(--esa-soft);
+    color: var(--esa);
+  }
 
-  .section-title {
-    font-size: 0.68rem;
-    text-transform: uppercase;
-    letter-spacing: 0.12em;
+  .days-pill.medium {
+    background: var(--uc-soft);
+    color: var(--uc);
+  }
+
+  .days-pill.soon {
+    background: var(--soon-soft);
+    color: var(--soon);
+  }
+
+  .days-pill.today {
+    background: var(--today-soft);
+    color: var(--today);
+  }
+
+  .weekend-note {
+    font-size: 0.75rem;
     color: var(--muted);
-    margin-bottom: 12px;
+    font-style: italic;
+    margin-top: 4px;
+    line-height: 1.4;
   }
 
-  .backup-row { display: flex; gap: 10px; }
-  .backup-btn {
-    flex: 1;
-    padding: 13px;
-    border-radius: 12px;
-    font-family: inherit;
-    font-size: 0.85rem;
-    font-weight: 500;
-    cursor: pointer;
-    background: var(--surface);
-    border: 1px solid var(--border);
-    color: var(--text);
-    transition: border-color 0.15s;
+  .refresh-note {
+    text-align: center;
+    font-size: 0.74rem;
+    color: var(--muted);
+    margin-top: 28px;
+    line-height: 1.5;
   }
-  .backup-btn:hover { border-color: var(--muted); }
-  #load-input { display: none; }
-
-  .refresh-note { text-align: center; font-size: 0.72rem; color: var(--muted); margin-top: 28px; }
 </style>
 </head>
 <body>
 
 <h1>My Benefit Payments</h1>
 <p class="today-line" id="today-line"></p>
+
 <div class="cards" id="cards"></div>
 
-<p class="section-title">Backup &amp; Restore</p>
-<div class="backup-row">
-  <button class="backup-btn" onclick="saveBackup()">💾 Save Backup</button>
-  <button class="backup-btn" onclick="document.getElementById('load-input').click()">📂 Load Backup</button>
-</div>
-<input type="file" id="load-input" accept=".json" onchange="loadBackup(event)">
-<p class="refresh-note">Dates recalculate automatically every time you open this page.</p>
+<p class="refresh-note">
+  Dates recalculate automatically whenever you open this page.
+  Weekend payments are moved to Friday; bank holidays may also affect payment dates.
+</p>
 
 <script>
-// ── Payment schedules (verified by calculation, not guesswork) ──────
 const SCHEDULES = [
   {
-    id:       'pip',
-    label:    'PIP',
-    freq:     'Every 4 weeks',
-    amount:   '£626.80',
-    type:     'interval',
-    anchor:   [2025, 6, 18],   // 18 June 2025 (months are 1-based here)
-    days:     28,
+    id: 'pip',
+    label: 'PIP',
+    freq: 'Every 4 weeks',
+    amount: '£626.80',
+    type: 'interval',
+    anchor: [2026, 6, 18],
+    days: 28,
   },
   {
-    id:       'esa',
-    label:    'ESA',
-    freq:     'Every 2 weeks',
-    amount:   '£291.80',
-    type:     'interval',
-    anchor:   [2025, 6, 3],    // 3 June 2025 (verified anchor)
-    days:     14,
+    id: 'esa',
+    label: 'ESA',
+    freq: 'Every 2 weeks',
+    amount: '£291.80',
+    type: 'interval',
+    anchor: [2026, 6, 17],
+    days: 14,
   },
   {
-    id:       'uc',
-    label:    'UC',
-    freq:     'Monthly on the 12th',
-    amount:   '£649.97',
-    type:     'monthly',
+    id: 'uc',
+    label: 'UC',
+    freq: 'Monthly on the 12th',
+    amount: '£649.97',
+    type: 'monthly',
     dayOfMonth: 12,
   },
 ];
-
-// ── Helpers ────────────────────────────────────────────────────────
 
 function startOfToday() {
   const d = new Date();
@@ -194,141 +234,183 @@ function startOfToday() {
   return d;
 }
 
-// anchor: [year, month_1based, day]
-function anchorToDate(a) {
-  return new Date(a[0], a[1] - 1, a[2]);
+function anchorToDate(anchor) {
+  const d = new Date(anchor[0], anchor[1] - 1, anchor[2]);
+  d.setHours(0, 0, 0, 0);
+  return d;
 }
 
-function addDays(d, n) {
-  const r = new Date(d);
-  r.setDate(r.getDate() + n);
-  return r;
+function addDays(date, numberOfDays) {
+  const result = new Date(date);
+  result.setDate(result.getDate() + numberOfDays);
+  return result;
+}
+
+function adjustWeekend(date) {
+  const day = date.getDay();
+
+  if (day === 6) {
+    return {
+      date: addDays(date, -1),
+      note: 'Falls on Saturday — paid Friday instead'
+    };
+  }
+
+  if (day === 0) {
+    return {
+      date: addDays(date, -2),
+      note: 'Falls on Sunday — paid Friday instead'
+    };
+  }
+
+  return {
+    date: new Date(date),
+    note: null
+  };
+}
+
+function calendarDayDifference(from, to) {
+  const fromUTC = Date.UTC(
+    from.getFullYear(),
+    from.getMonth(),
+    from.getDate()
+  );
+
+  const toUTC = Date.UTC(
+    to.getFullYear(),
+    to.getMonth(),
+    to.getDate()
+  );
+
+  return Math.round((toUTC - fromUTC) / 86_400_000);
 }
 
 function nextInterval(anchor, intervalDays) {
   const today = startOfToday();
-  let d = new Date(anchor);
-  d.setHours(0, 0, 0, 0);
-  while (d <= today) {
-    d = addDays(d, intervalDays);
+  let nominalDate = new Date(anchor);
+
+  if (nominalDate < today) {
+    const elapsedDays = calendarDayDifference(nominalDate, today);
+    const jumps = Math.max(0, Math.floor(elapsedDays / intervalDays) - 1);
+    nominalDate = addDays(nominalDate, jumps * intervalDays);
   }
-  return d;
+
+  while (true) {
+    const adjusted = adjustWeekend(nominalDate);
+
+    if (adjusted.date >= today) {
+      return adjusted;
+    }
+
+    nominalDate = addDays(nominalDate, intervalDays);
+  }
 }
 
 function nextMonthly(dayOfMonth) {
   const today = startOfToday();
-  const y = today.getFullYear();
-  const m = today.getMonth(); // 0-based
-  let candidate = new Date(y, m, dayOfMonth);
-  if (candidate <= today) {
-    candidate = new Date(y, m + 1, dayOfMonth);
-  }
-  return candidate;
-}
+  let year = today.getFullYear();
+  let month = today.getMonth();
 
-// Move Saturday/Sunday back to Friday
-function adjustWeekend(d) {
-  const dow = d.getDay(); // 0=Sun, 6=Sat
-  if (dow === 6) return { date: addDays(d, -1), note: 'The 12th is a Saturday — paid Friday instead' };
-  if (dow === 0) return { date: addDays(d, -2), note: 'The 12th is a Sunday — paid Friday instead' };
-  return { date: d, note: null };
-}
+  while (true) {
+    const lastDayOfMonth = new Date(year, month + 1, 0).getDate();
+    const safeDay = Math.min(dayOfMonth, lastDayOfMonth);
+    const nominalDate = new Date(year, month, safeDay);
+    const adjusted = adjustWeekend(nominalDate);
 
-function calcNext(s) {
-  let raw;
-  if (s.type === 'interval') {
-    raw = nextInterval(anchorToDate(s.anchor), s.days);
-    // Intervals: weekend shift just shows note, no anchor change needed
-    const dow = raw.getDay();
-    if (dow === 6) return { date: addDays(raw, -1), note: 'Falls on Saturday — paid Friday instead' };
-    if (dow === 0) return { date: addDays(raw, -2), note: 'Falls on Sunday — paid Friday instead' };
-    return { date: raw, note: null };
-  } else {
-    raw = nextMonthly(s.dayOfMonth);
-    return adjustWeekend(raw);
+    if (adjusted.date >= today) {
+      return adjusted;
+    }
+
+    month += 1;
+
+    if (month > 11) {
+      month = 0;
+      year += 1;
+    }
   }
 }
 
-function fmt(d) {
-  return d.toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long' });
+function calculateNextPayment(schedule) {
+  if (schedule.type === 'interval') {
+    return nextInterval(
+      anchorToDate(schedule.anchor),
+      schedule.days
+    );
+  }
+
+  return nextMonthly(schedule.dayOfMonth);
 }
 
-function daysUntil(d) {
-  return Math.round((d - startOfToday()) / 86_400_000);
+function formatDate(date) {
+  return date.toLocaleDateString('en-GB', {
+    weekday: 'long',
+    day: 'numeric',
+    month: 'long'
+  });
 }
 
-// ── Render ────────────────────────────────────────────────────────
+function daysUntil(date) {
+  return calendarDayDifference(startOfToday(), date);
+}
 
 function render() {
   const now = new Date();
+
   document.getElementById('today-line').textContent =
-    'Today is ' + now.toLocaleDateString('en-GB', {
-      weekday: 'long', day: 'numeric', month: 'long', year: 'numeric'
+    'Today is ' +
+    now.toLocaleDateString('en-GB', {
+      weekday: 'long',
+      day: 'numeric',
+      month: 'long',
+      year: 'numeric'
     });
 
   const container = document.getElementById('cards');
   container.innerHTML = '';
 
-  SCHEDULES.forEach(s => {
-    const { date, note } = calcNext(s);
-    const days = daysUntil(date);
+  SCHEDULES.forEach(schedule => {
+    const result = calculateNextPayment(schedule);
+    const days = daysUntil(result.date);
 
-    let pillClass, pillText;
-    if (days === 0)       { pillClass = 'today';  pillText = '🎉 Today!'; }
-    else if (days === 1)  { pillClass = 'soon';   pillText = 'Tomorrow'; }
-    else if (days <= 5)   { pillClass = 'soon';   pillText = `In ${days} days`; }
-    else if (days <= 12)  { pillClass = 'medium'; pillText = `In ${days} days`; }
-    else                  { pillClass = 'far';    pillText = `In ${days} days`; }
+    let pillClass;
+    let pillText;
 
-    const noteHTML = note
-      ? `<div class="weekend-note">⚠️ ${note}</div>`
-      : '';
+    if (days === 0) {
+      pillClass = 'today';
+      pillText = 'Today';
+    } else if (days === 1) {
+      pillClass = 'soon';
+      pillText = 'Tomorrow';
+    } else if (days <= 5) {
+      pillClass = 'soon';
+      pillText = `In ${days} days`;
+    } else if (days <= 12) {
+      pillClass = 'medium';
+      pillText = `In ${days} days`;
+    } else {
+      pillClass = 'far';
+      pillText = `In ${days} days`;
+    }
 
     const card = document.createElement('div');
-    card.className = `card ${s.id}`;
+    card.className = `card ${schedule.id}`;
+
     card.innerHTML = `
       <div class="card-header">
-        <span class="tag">${s.label}</span>
-        <span class="freq-label">${s.freq}</span>
+        <span class="tag">${schedule.label}</span>
+        <span class="freq-label">${schedule.freq}</span>
       </div>
-      <div class="amount">${s.amount}</div>
-      <div class="next-date">${fmt(date)}</div>
+      <div class="amount">${schedule.amount}</div>
+      <div class="next-date">${formatDate(result.date)}</div>
       <span class="days-pill ${pillClass}">${pillText}</span>
-      ${noteHTML}
+      ${result.note
+        ? `<div class="weekend-note">${result.note}</div>`
+        : ''
+      }
     `;
+
     container.appendChild(card);
   });
-}
-
-// ── Backup / Restore ──────────────────────────────────────────────
-
-function saveBackup() {
-  const payload = {
-    note: 'Benefits tracker backup — keep this file safe',
-    saved: new Date().toISOString(),
-    schedules: SCHEDULES,
-  };
-  const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  a.download = 'benefits-backup.json';
-  a.click();
-}
-
-function loadBackup(e) {
-  const file = e.target.files[0];
-  if (!file) return;
-  const reader = new FileReader();
-  reader.onload = ev => {
-    try {
-      JSON.parse(ev.target.result);
-      alert('Backup file is valid and intact. Your dates are baked into the page itself, so your tracker is already working correctly.');
-    } catch {
-      alert('Could not read that file. Make sure it is a valid backup.');
-    }
-  };
-  reader.readAsText(file);
-  e.target.value = '';
 }
 
 render();
