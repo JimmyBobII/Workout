@@ -3,103 +3,417 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Safety Plan</title>
+<title>How to Help Me</title>
 <style>
-  * { box-sizing: border-box; margin: 0; padding: 0; }
+  * {
+    box-sizing: border-box;
+  }
+
+  :root {
+    --page: #f4f7f5;
+    --card: #ffffff;
+    --text: #22312b;
+    --muted: #5f6f68;
+    --line: #d8e3dd;
+    --green: #3f745f;
+    --green-soft: #eaf4ef;
+    --blue: #416f93;
+    --blue-soft: #edf5fb;
+    --gold: #8c682f;
+    --gold-soft: #fff7e8;
+    --red: #984545;
+    --red-soft: #fff0f0;
+    --shadow: 0 10px 28px rgba(45, 70, 59, 0.08);
+    --radius: 18px;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
   body {
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-    background: #f9f8f6;
-    color: #1a1a1a;
-    padding: 2rem 1rem;
-    line-height: 1.6;
+    margin: 0;
+    min-height: 100vh;
+    padding: 20px 12px 48px;
+    background: linear-gradient(180deg, #fbfdfc 0%, var(--page) 100%);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
+    font-size: 18px;
+    line-height: 1.55;
   }
-  .card {
-    max-width: 560px;
+
+  main {
+    width: 100%;
+    max-width: 720px;
     margin: 0 auto;
-    background: #fff;
-    border-radius: 14px;
-    padding: 2rem;
-    border: 1px solid #e8e6e0;
   }
+
+  header {
+    margin-bottom: 18px;
+    padding: 4px 4px 0;
+  }
+
   h1 {
-    font-size: 20px;
-    font-weight: 600;
-    letter-spacing: 0.05em;
-    margin-bottom: 2rem;
-    color: #1a1a1a;
+    margin: 0 0 8px;
+    font-size: clamp(2rem, 8vw, 2.7rem);
+    line-height: 1.1;
+    letter-spacing: -0.035em;
   }
-  .section { margin-bottom: 2rem; }
-  .section-title {
-    font-size: 11px;
-    font-weight: 600;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    color: #888;
-    margin-bottom: 0.75rem;
+
+  .intro {
+    margin: 0;
+    color: var(--muted);
+    font-size: 1.05rem;
   }
-  ul { list-style: none; padding: 0; }
-  li {
-    font-size: 15px;
-    color: #2a2a2a;
-    padding: 0.55rem 0;
-    border-bottom: 1px solid #f0ede8;
+
+  .start-box {
+    margin: 20px 0;
+    padding: 20px;
+    border: 2px solid #bfd8cc;
+    border-radius: var(--radius);
+    background: var(--green-soft);
+    box-shadow: var(--shadow);
   }
-  li:last-child { border-bottom: none; }
-  .note {
-    font-size: 13px;
-    font-style: italic;
-    color: #666;
-    background: #f9f8f6;
-    border-radius: 8px;
-    padding: 0.75rem 1rem;
-    margin-bottom: 0.75rem;
-    line-height: 1.6;
+
+  .start-box h2 {
+    margin: 0 0 12px;
+    color: #2f5f4d;
+    font-size: 1.4rem;
   }
-  .crisis li { color: #2a2a2a; }
-  strong { font-weight: 600; }
+
+  .start-box ol {
+    margin: 0;
+    padding-left: 1.5rem;
+  }
+
+  .start-box li {
+    margin: 0 0 10px;
+    padding-left: 4px;
+  }
+
+  .start-box li:last-child {
+    margin-bottom: 0;
+  }
+
+  section {
+    margin-top: 18px;
+    padding: 20px;
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    background: var(--card);
+    box-shadow: var(--shadow);
+  }
+
+  section h2 {
+    margin: 0 0 7px;
+    font-size: 1.35rem;
+    line-height: 1.25;
+  }
+
+  .section-note {
+    margin: 0 0 15px;
+    color: var(--muted);
+    font-size: 0.98rem;
+  }
+
+  ul {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .sign-list li,
+  .help-list li {
+    position: relative;
+    margin-bottom: 10px;
+    padding: 13px 14px 13px 44px;
+    border: 1px solid var(--line);
+    border-radius: 13px;
+    background: #fbfdfc;
+  }
+
+  .sign-list li::before {
+    content: "!";
+    position: absolute;
+    left: 14px;
+    top: 13px;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: var(--gold-soft);
+    color: var(--gold);
+    text-align: center;
+    font-weight: 800;
+    line-height: 22px;
+  }
+
+  .help-list li::before {
+    content: "✓";
+    position: absolute;
+    left: 14px;
+    top: 13px;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: var(--green-soft);
+    color: var(--green);
+    text-align: center;
+    font-weight: 800;
+    line-height: 22px;
+  }
+
+  .sign-list li:last-child,
+  .help-list li:last-child {
+    margin-bottom: 0;
+  }
+
+  .say-box {
+    margin-top: 14px;
+    padding: 16px;
+    border-left: 5px solid var(--blue);
+    border-radius: 0 14px 14px 0;
+    background: var(--blue-soft);
+  }
+
+  .say-box strong {
+    display: block;
+    margin-bottom: 6px;
+    color: #315d7e;
+  }
+
+  .do-dont {
+    display: grid;
+    gap: 12px;
+    margin-top: 14px;
+  }
+
+  .guidance {
+    padding: 15px;
+    border-radius: 14px;
+  }
+
+  .guidance h3 {
+    margin: 0 0 8px;
+    font-size: 1.08rem;
+  }
+
+  .guidance ul {
+    list-style: disc;
+    padding-left: 1.35rem;
+  }
+
+  .guidance li {
+    margin-bottom: 7px;
+  }
+
+  .guidance li:last-child {
+    margin-bottom: 0;
+  }
+
+  .do {
+    border: 1px solid #cfe3da;
+    background: var(--green-soft);
+  }
+
+  .dont {
+    border: 1px solid #eadcbf;
+    background: var(--gold-soft);
+  }
+
+  .urgent {
+    border: 2px solid #e3bcbc;
+    background: var(--red-soft);
+  }
+
+  .urgent h2 {
+    color: #7d3535;
+  }
+
+  .urgent-order {
+    margin: 0 0 16px;
+    padding-left: 1.5rem;
+  }
+
+  .urgent-order li {
+    margin-bottom: 10px;
+    padding-left: 4px;
+  }
+
+  .contact-grid {
+    display: grid;
+    gap: 11px;
+  }
+
+  .contact-button {
+    display: block;
+    width: 100%;
+    padding: 16px;
+    border-radius: 14px;
+    text-align: center;
+    text-decoration: none;
+    font-size: 1.05rem;
+    font-weight: 750;
+  }
+
+  .contact-button.emergency {
+    background: var(--red);
+    color: white;
+  }
+
+  .contact-button.nhs {
+    background: #2f668d;
+    color: white;
+  }
+
+  .contact-button.support {
+    border: 2px solid #a7c2b6;
+    background: white;
+    color: #2f5f4d;
+  }
+
+  .small-note {
+    margin: 13px 0 0;
+    color: var(--muted);
+    font-size: 0.9rem;
+  }
+
+  footer {
+    margin-top: 22px;
+    color: var(--muted);
+    text-align: center;
+    font-size: 0.86rem;
+  }
+
+  @media (min-width: 620px) {
+    .do-dont {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+
+  @media print {
+    body {
+      padding: 0;
+      background: white;
+      font-size: 15px;
+    }
+
+    section,
+    .start-box {
+      box-shadow: none;
+      break-inside: avoid;
+    }
+
+    .contact-button {
+      border: 1px solid #777 !important;
+      color: black !important;
+      background: white !important;
+    }
+  }
 </style>
 </head>
 <body>
-<div class="card">
-  <h1>SAFETY PLAN</h1>
+<main>
+  <header>
+    <h1>How to help me</h1>
+    <p class="intro">A simple guide for Mum and my sisters when I am becoming unwell or overwhelmed.</p>
+  </header>
 
-  <div class="section">
-    <p class="section-title">Warning signs — check in if you notice</p>
-    <ul>
-      <li>My thoughts seem to be steering me toward things I wouldn't normally do, skipping or taking over.</li>
-      <li>I mention suicidal ideation or not wanting to be here.</li>
-      <li>I seem paranoid — feeling watched, unsafe or threatened.</li>
-      <li>I'm not sleeping or insomnia is getting much worse.</li>
-      <li>I'm seeing things that won't change back (visual hallucinations), or seeing figures/entities.</li>
-      <li>Sounds or voices feel aggressive and feel aimed at harming me (audio hallucinations).</li>
-    </ul>
+  <div class="start-box">
+    <h2>Start here</h2>
+    <ol>
+      <li><strong>Stay calm and speak slowly.</strong></li>
+      <li><strong>Stay nearby if it is safe.</strong> Keep the room quiet and reduce pressure.</li>
+      <li><strong>Ask one short question:</strong> “What would help right now?”</li>
+      <li>If I cannot answer, suggest <strong>one</strong> familiar calming thing from the list below.</li>
+    </ol>
   </div>
 
-  <div class="section">
-    <p class="section-title">What helps — things to suggest</p>
-    <ul>
-      <li>Suggest I put music on, or suggest I put headphones on.</li>
-      <li>Suggest I get Piff (my weighted dragon plush) — holding him or just having him nearby helps.</li>
-      <li>Suggest I work on my game, Piececool model kit, or sticker books.</li>
-      <li>Suggest a gaming session.</li>
-      <li>Suggest I put on my amber light orb.</li>
-      <li>Suggest reading something familiar.</li>
-      <li>Suggest I lift weights for an hour.</li>
-      <li>Suggest I open my Self Soothe Box and look through everything in it.</li>
-    </ul>
-  </div>
+  <section aria-labelledby="warning-heading">
+    <h2 id="warning-heading">Warning signs</h2>
+    <p class="section-note">Please check in with me if you notice one or more of these changes.</p>
 
-  <div class="section crisis">
-    <p class="section-title">If it becomes a crisis</p>
-    <p class="note">When I'm struggling I may seem irrational or say things that don't make sense — this is the condition, not me being difficult. Don't try to fill in the blanks about what's happening, it can make things worse.</p>
-    <ul>
-      <li>Stay calm and stay with me. Just ask me gently what I need. If I can't answer, just stay close and keep things calm and quiet.</li>
-      <li>Don't argue with what I'm seeing or hearing — just be kind and grounded.</li>
-      <li><strong>Samaritans:</strong> 116 123 (free, 24/7) — you can call together with me.</li>
-      <li><strong>Crisis text:</strong> text SHOUT to 85258.</li>
-      <li><strong>999</strong> if there is immediate risk.</li>
+    <ul class="sign-list">
+      <li>My thoughts seem to be steering me towards things I would not normally do, or they seem to take over.</li>
+      <li>I mention suicidal thoughts, not wanting to be here, or being unable to keep myself safe.</li>
+      <li>I seem frightened, watched, unsafe, threatened, or unusually suspicious.</li>
+      <li>I am sleeping very little, or my insomnia is becoming much worse.</li>
+      <li>I am seeing things that do not change back, including figures or entities.</li>
+      <li>Sounds or voices feel aggressive, threatening, or aimed at harming me.</li>
     </ul>
-  </div>
-</div>
+  </section>
+
+  <section aria-labelledby="respond-heading">
+    <h2 id="respond-heading">How to respond</h2>
+    <p class="section-note">The distress is real even when you do not share what I am experiencing.</p>
+
+    <div class="say-box">
+      <strong>Something helpful to say</strong>
+      “I can see this is frightening. I am here with you. We do not have to work it all out right now.”
+    </div>
+
+    <div class="do-dont">
+      <div class="guidance do">
+        <h3>Do</h3>
+        <ul>
+          <li>Use plain language and short sentences.</li>
+          <li>Give me time to answer.</li>
+          <li>Acknowledge how frightened or distressed I feel.</li>
+          <li>Keep things quiet, familiar, and low-pressure.</li>
+          <li>Ask before touching me or moving things.</li>
+        </ul>
+      </div>
+
+      <div class="guidance dont">
+        <h3>Please avoid</h3>
+        <ul>
+          <li>Arguing about what I see, hear, or believe.</li>
+          <li>Agreeing that frightening conclusions are definitely true.</li>
+          <li>Guessing or filling in missing details.</li>
+          <li>Asking many questions at once.</li>
+          <li>Taking confused or unusual speech personally.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section aria-labelledby="helps-heading">
+    <h2 id="helps-heading">Things that may help</h2>
+    <p class="section-note">Suggest one thing gently. Do not give me the whole list at once.</p>
+
+    <ul class="help-list">
+      <li>Put familiar music on, or offer my headphones.</li>
+      <li>Get Piff, my weighted dragon plush, and place him near me.</li>
+      <li>Put on my amber light orb.</li>
+      <li>Open my Self Soothe Box and go through it slowly with me.</li>
+      <li>Suggest my game, Piececool model kit, or sticker books.</li>
+      <li>Suggest a familiar game or something familiar to read.</li>
+      <li>Suggest lifting weights only if I feel safe and able. A shorter session is fine.</li>
+    </ul>
+  </section>
+
+  <section class="urgent" aria-labelledby="urgent-heading">
+    <h2 id="urgent-heading">If it becomes urgent or unsafe</h2>
+
+    <ol class="urgent-order">
+      <li>If there is <strong>immediate danger</strong>, call <strong>999</strong>. Do not put yourself in danger.</li>
+      <li>For urgent mental-health help that is not an immediate emergency, call <strong>NHS 111</strong> and select the mental-health option.</li>
+      <li>Samaritans can be called with me for emotional support on <strong>116 123</strong>.</li>
+      <li>For text support, text <strong>SHOUT</strong> to <strong>85258</strong>.</li>
+    </ol>
+
+    <div class="contact-grid">
+      <a class="contact-button emergency" href="tel:999">Call 999 — immediate danger</a>
+      <a class="contact-button nhs" href="tel:111">Call NHS 111 — urgent mental-health help</a>
+      <a class="contact-button support" href="tel:116123">Call Samaritans — 116 123</a>
+      <a class="contact-button support" href="sms:85258?body=SHOUT">Text SHOUT to 85258</a>
+    </div>
+
+    <p class="small-note">If I have a named crisis team or care coordinator, add their current number to this page as well.</p>
+  </section>
+
+  <footer>
+    This page does not record, save, or send any personal information.
+  </footer>
+</main>
 </body>
-</html>
+ </html>
