@@ -424,16 +424,21 @@
     document.getElementById('view-'+name).classList.add('active');
     document.getElementById('tab'+name.charAt(0).toUpperCase()+name.slice(1)).classList.add('active');
     if(name === 'past') renderList();
-    if(name === 'write') loadIntoWriteView(currentDate);
+    if(name === 'write') loadIntoWriteView(todayKey());
   }
 
-  function loadIntoWriteView(dateKey){
+  function loadIntoWriteView(dateKey, opts){
+    opts = opts || {};
     currentDate = dateKey;
     const entries = loadEntries();
     document.getElementById('dateDisplay').textContent = formatDateNice(dateKey);
     const isToday = dateKey === todayKey();
     document.getElementById('dateSub').textContent = isToday ? "today" : "editing a past entry";
-    document.getElementById('entryText').value = (entries[dateKey] && entries[dateKey].text) || '';
+    // Only pre-fill the box when explicitly opening a past entry to edit it.
+    // Opening the Write tab fresh always starts blank, even if today already has a saved entry.
+    document.getElementById('entryText').value = opts.showExisting
+      ? ((entries[dateKey] && entries[dateKey].text) || '')
+      : '';
     document.getElementById('savedNote').textContent = entries[dateKey]
       ? 'last saved ' + new Date(entries[dateKey].updatedAt).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})
       : '';
@@ -484,7 +489,7 @@
 
   function openEntry(key){
     switchView('write');
-    loadIntoWriteView(key);
+    loadIntoWriteView(key, { showExisting: true });
   }
 
   function deleteEntry(key){
@@ -531,4 +536,4 @@
   loadIntoWriteView(currentDate);
 </script>
 </body>
-</html>
+    </html>
