@@ -389,8 +389,16 @@
 </div>
 
 <script>
-  const STORAGE_KEY = 'sanrio_journal_entries_v1';
+  // v2 storage: { "YYYY-MM-DD": [ { id, text, createdAt, updatedAt }, ... ] }
+  // Each date can hold as many separate entries as you like.
+  const STORAGE_KEY = 'sanrio_journal_entries_v2';
+  const OLD_STORAGE_KEY = 'sanrio_journal_entries_v1';
+
+  // currentDate: the date the Write box will save into.
+  // editingId: null = this save will create a brand-new entry.
+  //            set  = this save will update that specific existing entry.
   let currentDate = todayKey();
+  let editingId = null;
 
   function todayKey(d = new Date()){
     const y = d.getFullYear();
@@ -399,10 +407,33 @@
     return `${y}-${m}-${day}`;
   }
 
+  function makeId(){
+    if(window.crypto && crypto.randomUUID) return crypto.randomUUID();
+    return 'id-' + Date.now() + '-' + Math.random().toString(16).slice(2);
+  }
+
   function loadEntries(){
     try{
       const raw = localStorage.getItem(STORAGE_KEY);
-      return raw ? JSON.parse(raw) : {};
+      if(raw) return JSON.parse(raw);
+
+      // One-time migration from the old "one entry per day" format, if present.
+      const oldRaw = localStorage.getItem(OLD_STORAGE_KEY);
+      if(oldRaw){
+        const old = JSON.parse(oldRaw);
+        const migrated = {};
+        Object.keys(old).forEach(k => {
+          migrated[k] = [{
+            id: makeId(),
+            text: old[k].text || '',
+            createdAt: old[k].updatedAt || new Date().toISOString(),
+            updatedAt: old[k].updatedAt || new Date().toISOString()
+          }];
+        });
+        saveEntries(migrated);
+        return migrated;
+      }
+      return {};
     }catch(e){
       return {};
     }
@@ -418,40 +449,90 @@
     return dt.toLocaleDateString(undefined, { weekday:'long', year:'numeric', month:'long', day:'numeric' });
   }
 
+  function formatTime(iso){
+    return new Date(iso).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
+  }
+
   function switchView(name){
     document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
     document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
     document.getElementById('view-'+name).classList.add('active');
     document.getElementById('tab'+name.charAt(0).toUpperCase()+name.slice(1)).classList.add('active');
     if(name === 'past') renderList();
-    if(name === 'write') loadIntoWriteView(todayKey());
+    if(name === 'write') newEntry();
   }
 
-  function loadIntoWriteView(dateKey, opts){
-    opts = opts || {};
-    currentDate = dateKey;
+  // Always starts a fresh, blank entry for today. This never pre-fills,
+  // even if today already has entries saved.
+  function newEntry(){
+    currentDate = todayKey();
+    editingId = null;
+    document.getElementById('dateDisplay').textContent = formatDateNice(currentDate);
+    document.getElementById('dateSub').textContent = 'today';
+    document.getElementById('entryText').value = '';
+    document.getElementById('savedNote').textContent = '';
+  }
+
+  // Opens one specific saved entry for editing (from the Past tab).
+  function openEntry(dateKey, entryId){
     const entries = loadEntries();
+    const entry = (entries[dateKey] || []).find(e => e.id === entryId);
+    if(!entry) return;
+
+    switchViewSilent('write');
+    currentDate = dateKey;
+    editingId = entryId;
     document.getElementById('dateDisplay').textContent = formatDateNice(dateKey);
-    const isToday = dateKey === todayKey();
-    document.getElementById('dateSub').textContent = isToday ? "today" : "editing a past entry";
-    // Only pre-fill the box when explicitly opening a past entry to edit it.
-    // Opening the Write tab fresh always starts blank, even if today already has a saved entry.
-    document.getElementById('entryText').value = opts.showExisting
-      ? ((entries[dateKey] && entries[dateKey].text) || '')
-      : '';
-    document.getElementById('savedNote').textContent = entries[dateKey]
-      ? 'last saved ' + new Date(entries[dateKey].updatedAt).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})
-      : '';
+    document.getElementById('dateSub').textContent = 'editing an entry from ' + formatTime(entry.createdAt);
+    document.getElementById('entryText').value = entry.text;
+    document.getElementById('savedNote').textContent = 'last saved ' + formatTime(entry.updatedAt);
+  }
+
+  // Like switchView, but doesn't call newEntry() -- used when openEntry needs
+  // to land on the write tab pre-filled with a specific past entry.
+  function switchViewSilent(name){
+    document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+    document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
+    document.getElementById('view-'+name).classList.add('active');
+    document.getElementById('tab'+name.charAt(0).toUpperCase()+name.slice(1)).classList.add('active');
   }
 
   function saveCurrentEntry(){
     const text = document.getElementById('entryText').value;
     const entries = loadEntries();
+    const dayList = entries[currentDate] || [];
+
     if(text.trim() === ''){
-      delete entries[currentDate];
-    } else {
-      entries[currentDate] = { text, updatedAt: new Date().toISOString() };
+      if(editingId){
+        // Clearing an existing entry to empty and saving -- confirm before deleting it.
+        if(!confirm('This entry is empty now. Save will delete it. Are you sure?')) return;
+        entries[currentDate] = dayList.filter(e => e.id !== editingId);
+        if(entries[currentDate].length === 0) delete entries[currentDate];
+        saveEntries(entries);
+        document.getElementById('savedNote').textContent = 'entry deleted';
+        newEntry();
+      } else {
+        // New, still-empty entry -- nothing to save, nothing is touched.
+        document.getElementById('savedNote').textContent = 'write something first ♡';
+      }
+      return;
     }
+
+    const now = new Date().toISOString();
+
+    if(editingId){
+      const entry = dayList.find(e => e.id === editingId);
+      if(entry){
+        entry.text = text;
+        entry.updatedAt = now;
+      }
+    } else {
+      const newEntryObj = { id: makeId(), text, createdAt: now, updatedAt: now };
+      dayList.push(newEntryObj);
+      entries[currentDate] = dayList;
+      editingId = newEntryObj.id; // further saves in this session update this same entry
+    }
+
     saveEntries(entries);
     document.getElementById('savedNote').textContent = 'saved just now ♡';
     playSeal();
@@ -469,33 +550,35 @@
     const entries = loadEntries();
     const keys = Object.keys(entries).sort().reverse();
     const list = document.getElementById('entryList');
-    if(keys.length === 0){
+
+    const anyEntries = keys.some(k => (entries[k] || []).length > 0);
+    if(!anyEntries){
       list.innerHTML = `<div class="empty-state"><div class="icon">🌷</div>No entries yet — go write your first one!</div>`;
       return;
     }
+
     list.innerHTML = keys.map(k => {
-      const preview = (entries[k].text || '').replace(/</g,'&lt;');
-      return `
-        <div class="entry-card">
-          <div class="info" onclick="openEntry('${k}')">
-            <div class="d">${formatDateNice(k)}</div>
-            <div class="preview">${preview || '(empty)'}</div>
+      const dayEntries = (entries[k] || []).slice().sort((a,b) => b.createdAt.localeCompare(a.createdAt));
+      return dayEntries.map(entry => {
+        const preview = (entry.text || '').replace(/</g,'&lt;');
+        return `
+          <div class="entry-card">
+            <div class="info" onclick="openEntry('${k}','${entry.id}')">
+              <div class="d">${formatDateNice(k)} · ${formatTime(entry.createdAt)}</div>
+              <div class="preview">${preview || '(empty)'}</div>
+            </div>
+            <button class="del" onclick="deleteEntry('${k}','${entry.id}')">🗑️</button>
           </div>
-          <button class="del" onclick="deleteEntry('${k}')">🗑️</button>
-        </div>
-      `;
+        `;
+      }).join('');
     }).join('');
   }
 
-  function openEntry(key){
-    switchView('write');
-    loadIntoWriteView(key, { showExisting: true });
-  }
-
-  function deleteEntry(key){
+  function deleteEntry(dateKey, entryId){
     if(!confirm('Delete this entry? This cannot be undone.')) return;
     const entries = loadEntries();
-    delete entries[key];
+    entries[dateKey] = (entries[dateKey] || []).filter(e => e.id !== entryId);
+    if(entries[dateKey].length === 0) delete entries[dateKey];
     saveEntries(entries);
     renderList();
   }
@@ -513,6 +596,9 @@
     URL.revokeObjectURL(url);
   }
 
+  // Merges a backup file in without ever silently losing newer writing.
+  // For any entry that exists in both places, whichever was updated more
+  // recently wins; entries only in one side are kept as-is.
   function importBackup(event){
     const file = event.target.files[0];
     if(!file) return;
@@ -521,7 +607,24 @@
       try{
         const imported = JSON.parse(e.target.result);
         const current = loadEntries();
-        const merged = { ...current, ...imported };
+        const merged = { ...current };
+
+        Object.keys(imported).forEach(dateKey => {
+          const incomingList = imported[dateKey] || [];
+          const existingList = merged[dateKey] ? merged[dateKey].slice() : [];
+          const byId = {};
+          existingList.forEach(e => { byId[e.id] = e; });
+
+          incomingList.forEach(incoming => {
+            const existing = byId[incoming.id];
+            if(!existing || new Date(incoming.updatedAt) > new Date(existing.updatedAt)){
+              byId[incoming.id] = incoming;
+            }
+          });
+
+          merged[dateKey] = Object.values(byId);
+        });
+
         saveEntries(merged);
         alert('Backup loaded! Your entries are back. 🎀');
         renderList();
@@ -533,7 +636,7 @@
     event.target.value = '';
   }
 
-  loadIntoWriteView(currentDate);
+  newEntry();
 </script>
 </body>
-    </html>
+  </html>
